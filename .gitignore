@@ -1,0 +1,12 @@
+target
+.env
+.vscode
+bin
+config.json
+node_modules
+./package-lock.json
+.idea
+hfuzz_target
+hfuzz_workspace
+**/*.so
+*.code-workspace
