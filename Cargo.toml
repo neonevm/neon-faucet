@@ -2,7 +2,7 @@
 name = "faucet"
 description = "NeonLabs Faucet Service"
 authors = ["NeonLabs Maintainers <maintainers@neonlabs.org>"]
-repository = "https://github.com/neonlabsorg/neon-evm/evm_loader/faucet"
+repository = "https://github.com/neonlabsorg/neon-faucet"
 version = "0.6.0-dev"
 edition = "2018"
 
