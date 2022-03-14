@@ -92,7 +92,10 @@ pub async fn deposit_token(
     let id = id.to_owned();
     tokio::task::spawn_blocking(move || -> Result<()> {
         let client = get_client();
-        let mut instructions = Vec::with_capacity(3);
+        let mut instructions = Vec::with_capacity(4);
+
+        let memo = format!("{}", id);
+        instructions.push(spl_memo::build_memo(memo.as_bytes(), &[&signer_pubkey]));
 
         let ether_account = client.get_account(&ether_pubkey);
         if ether_account.is_err() {

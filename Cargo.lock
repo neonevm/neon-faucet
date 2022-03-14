@@ -1302,6 +1302,7 @@ dependencies = [
  "solana-client",
  "solana-sdk",
  "spl-associated-token-account",
+ "spl-memo",
  "spl-token",
  "structopt",
  "termimad",
