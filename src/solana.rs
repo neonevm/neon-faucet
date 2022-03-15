@@ -116,6 +116,8 @@ pub async fn deposit_token(
             convert_whole_to_fractions(amount)?
         };
 
+        info!("{} ether_address = {}", id, ether_address);
+        info!("{} ether_pubkey = {}", id, ether_pubkey);
         info!("{} spl_token id = {}", id, spl_token::id());
         info!("{} signer_pubkey = {}", id, signer_pubkey);
         info!("{} signer_token_pubkey = {}", id, signer_token_pubkey);
