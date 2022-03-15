@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 actix-cors = { version = "0.6", default-features = false }
-actix-web = { version = "4.0.0-rc.3", default-features = false, features = ["macros"] }
+actix-web = { version = "4.0", default-features = false, features = ["macros"] }
 chrono = "0.4"
 derive-new = "0.5"
 ed25519-dalek = "1.0"
