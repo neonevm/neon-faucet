@@ -117,10 +117,10 @@ pub async fn deposit_token(
         };
 
         info!("{} spl_token id = {}", id, spl_token::id());
+        info!("{} signer_pubkey = {}", id, signer_pubkey);
         info!("{} signer_token_pubkey = {}", id, signer_token_pubkey);
         info!("{} evm_pool_pubkey = {}", id, evm_pool_pubkey);
         info!("{} evm_token_authority = {}", id, evm_token_authority);
-        info!("{} signer_pubkey = {}", id, signer_pubkey);
         info!("{} amount = {}", id, amount);
 
         instructions.push(spl_approve_instruction(
