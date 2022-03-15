@@ -4,8 +4,8 @@ use derive_new::new;
 use eyre::{eyre, Result};
 use tracing::{error, info};
 
-use secp256k1::SecretKey;
 use futures_locks::RwLock;
+use secp256k1::SecretKey;
 use web3::api::Eth;
 use web3::contract::{Contract, Options};
 use web3::signing::Key;
@@ -110,7 +110,10 @@ async fn transfer<T: Transport>(
         "{} Sending transaction for transfer of token {}...",
         id, token_name
     );
-    let  options =  web3::contract::Options {gas: Some(U256::from(10_000_000)), ..Default::default()};
+    let options = web3::contract::Options {
+        gas: Some(U256::from(10_000_000)),
+        ..Default::default()
+    };
     token
         .signed_call_with_confirmations(
             "transfer",
