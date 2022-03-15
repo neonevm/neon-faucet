@@ -478,6 +478,12 @@ impl Solana {
                     "<empty>".into(),
                 ));
             }
+            if Pubkey::from_str(&self.evm_loader).is_err() {
+                return Err(Error::InvalidParameter(
+                    "solana.evm_loader".into(),
+                    self.evm_loader.clone(),
+                ));
+            }
             if self.operator_keyfile.is_empty() {
                 return Err(Error::InvalidParameter(
                     "solana.operator_keyfile".into(),
