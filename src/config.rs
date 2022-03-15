@@ -56,6 +56,9 @@ pub enum Error {
     #[error("Invalid pubkey '{0}'")]
     InvalidPubkey(String),
 
+    #[error("Invalid value '{1}' of parameter '{0}'")]
+    InvalidParameter(String, String),
+
     #[error("Account not found '{0}'")]
     AccountNotFound(Pubkey),
 
@@ -174,6 +177,8 @@ pub fn load(file: &Path) -> Result<()> {
             }
         }
     }
+
+    CONFIG.read().unwrap().check()?;
 
     Ok(())
 }
@@ -305,6 +310,24 @@ struct Rpc {
     allowed_origins: Vec<String>,
 }
 
+impl Rpc {
+    fn check(&self) -> Result<()> {
+        if self.bind.is_empty() {
+            return Err(Error::InvalidParameter("rpc.bind".into(), "<empty>".into()));
+        }
+        if self.port == 0 {
+            return Err(Error::InvalidParameter("rpc.port".into(), "0".into()));
+        }
+        if self.allowed_origins.is_empty() {
+            return Err(Error::InvalidParameter(
+                "rpc.allowed_origins".into(),
+                "<empty>".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
 impl std::fmt::Display for Rpc {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "rpc.bind = \"{}\"", self.bind)?;
@@ -337,6 +360,38 @@ struct Web3 {
     private_key: String,
     tokens: Vec<String>,
     max_amount: u64,
+}
+
+impl Web3 {
+    fn check(&self) -> Result<()> {
+        if self.enable {
+            if self.rpc_url.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "web3.rpc_url".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.private_key.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "web3.private_key".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.tokens.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "web3.tokens".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.max_amount == 0 {
+                return Err(Error::InvalidParameter(
+                    "web3.max_amount".into(),
+                    "0".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
 }
 
 impl std::fmt::Display for Web3 {
@@ -399,6 +454,45 @@ struct Solana {
     token_mint_decimals: u8,  // from neon params
     operator_keyfile: PathBuf,
     max_amount: u64,
+}
+
+impl Solana {
+    fn check(&self) -> Result<()> {
+        use nix::NixPath as _;
+        if self.enable {
+            if self.url.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "solana.url".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.commitment.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "solana.commitment".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.evm_loader.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "solana.evm_loader".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.operator_keyfile.is_empty() {
+                return Err(Error::InvalidParameter(
+                    "solana.operator_keyfile".into(),
+                    "<empty>".into(),
+                ));
+            }
+            if self.max_amount == 0 {
+                return Err(Error::InvalidParameter(
+                    "web3.max_amount".into(),
+                    "0".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
 }
 
 impl std::fmt::Display for Solana {
@@ -464,6 +558,14 @@ impl Faucet {
     fn load(&mut self, file: &Path) -> Result<()> {
         let text = std::fs::read_to_string(file).map_err(|e| Error::Read(e, file.to_owned()))?;
         *self = toml::from_str(&text).map_err(|e| Error::Parse(e, file.to_owned()))?;
+        Ok(())
+    }
+
+    /// Performs preliminary check of the config.
+    fn check(&self) -> Result<()> {
+        self.rpc.check()?;
+        self.web3.check()?;
+        self.solana.check()?;
         Ok(())
     }
 }

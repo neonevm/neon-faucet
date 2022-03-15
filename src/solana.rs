@@ -94,7 +94,7 @@ pub async fn deposit_token(
         let client = get_client();
         let mut instructions = Vec::with_capacity(4);
 
-        let memo = format!("{}", id);
+        let memo = format!("Neon Faucet {}", id.as_str());
         instructions.push(spl_memo::build_memo(memo.as_bytes(), &[&signer_pubkey]));
 
         let ether_account = client.get_account(&ether_pubkey);

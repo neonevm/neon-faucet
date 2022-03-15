@@ -29,6 +29,12 @@ pub struct ReqId {
     id: String,
 }
 
+impl ReqId {
+    pub fn as_str(&self) -> &str {
+        self.id.as_ref()
+    }
+}
+
 use std::fmt;
 
 impl fmt::Display for ReqId {
