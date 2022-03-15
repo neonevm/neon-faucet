@@ -6,7 +6,7 @@ macro_rules! display {
             "version ",
             env!("CARGO_PKG_VERSION"),
             "-",
-            env!("NEON_REVISION")
+            env!("FAUCET_REVISION")
         )
     };
 }

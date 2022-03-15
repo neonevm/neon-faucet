@@ -458,7 +458,6 @@ struct Solana {
 
 impl Solana {
     fn check(&self) -> Result<()> {
-        use nix::NixPath as _;
         if self.enable {
             if self.url.is_empty() {
                 return Err(Error::InvalidParameter(
@@ -484,6 +483,7 @@ impl Solana {
                     self.evm_loader.clone(),
                 ));
             }
+            use nix::NixPath as _; // to check if PathBuf is empty
             if self.operator_keyfile.is_empty() {
                 return Err(Error::InvalidParameter(
                     "solana.operator_keyfile".into(),
