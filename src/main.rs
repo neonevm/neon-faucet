@@ -16,7 +16,6 @@ mod solana;
 mod version;
 
 use eyre::Result;
-use tracing::info;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -59,6 +58,8 @@ fn setup() -> Result<()> {
 
     Ok(())
 }
+
+use tracing::info;
 
 /// Shows semantic version and revision hash.
 fn show_version() {
