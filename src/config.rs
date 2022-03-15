@@ -13,12 +13,11 @@ use tracing::{error, warn};
 
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::account_utils::StateMut;
-use solana_sdk::bpf_loader;
-use solana_sdk::bpf_loader_deprecated;
 use solana_sdk::bpf_loader_upgradeable::{self, UpgradeableLoaderState};
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
+use solana_sdk::{bpf_loader, bpf_loader_deprecated};
 
 use crate::{ethereum, id};
 
@@ -78,6 +77,7 @@ pub enum Error {
 /// Represents the config result type.
 pub type Result<T> = std::result::Result<T, Error>;
 
+const FAUCET_REVISION: &str = "FAUCET_REVISION";
 const FAUCET_RPC_BIND: &str = "FAUCET_RPC_BIND";
 const FAUCET_RPC_PORT: &str = "FAUCET_RPC_PORT";
 const FAUCET_RPC_ALLOWED_ORIGINS: &str = "FAUCET_RPC_ALLOWED_ORIGINS";
@@ -99,6 +99,7 @@ const NEON_LOG: &str = "NEON_LOG";
 const RUST_LOG: &str = "RUST_LOG";
 
 static ENV: &[&str] = &[
+    FAUCET_REVISION,
     FAUCET_RPC_BIND,
     FAUCET_RPC_PORT,
     FAUCET_RPC_ALLOWED_ORIGINS,
@@ -145,6 +146,7 @@ pub fn load(file: &Path) -> Result<()> {
     for e in ENV {
         if let Ok(val) = env::var(e) {
             match *e {
+                FAUCET_REVISION => {}
                 FAUCET_RPC_BIND => CONFIG.write().unwrap().rpc.bind = val,
                 FAUCET_RPC_PORT => CONFIG.write().unwrap().rpc.port = val.parse::<u16>()?,
                 FAUCET_RPC_ALLOWED_ORIGINS => {
