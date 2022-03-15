@@ -2,5 +2,5 @@ steps:
   - label: ":docker: build docker image"
     command:
       - "./.buildkite/steps/build_image.sh"
-#      - "./.buildkite/steps/push_image.sh"
+      - "./.buildkite/steps/push_image.sh"
 
