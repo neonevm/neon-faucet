@@ -26,7 +26,7 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
         if !solana::is_alive().await {
             return Err(eyre!("Solana does not respond"));
         }
-        config::load_neon_params(solana::get_client()).await?;
+        config::load_neon_params(solana::create_client()).await?;
     }
 
     let limit = if !params.in_fractions {
