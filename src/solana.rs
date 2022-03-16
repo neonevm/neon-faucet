@@ -1,7 +1,7 @@
 //! Faucet Solana utilities module.
 
 use std::str::FromStr as _;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use eyre::{eyre, Result, WrapErr};
 use tracing::info;
@@ -17,30 +17,16 @@ use solana_sdk::transaction::Transaction;
 
 use crate::{config, ethereum, id::ReqId};
 
-lazy_static::lazy_static! {
-    static ref CLIENT: Mutex<Client> = Mutex::new(Client::default());
-}
-
-/// Creates the signleton instance of RpcClient.
-pub fn init_client() {
-    tokio::task::spawn_blocking(|| {
-        CLIENT.lock().unwrap().0 = Arc::new(RpcClient::new_with_commitment(
-            config::solana_url(),
-            config::solana_commitment(),
-        ))
-    });
-}
-
 /// Checks connection with Solana.
 pub async fn is_alive() -> bool {
-    let ok =
-        tokio::task::spawn_blocking(|| -> bool { get_client().get_block_height().is_ok() }).await;
+    let ok = tokio::task::spawn_blocking(|| -> bool { create_client().get_block_height().is_ok() })
+        .await;
     ok.unwrap_or(false)
 }
 
-/// Returns instance of RpcClient.
-pub fn get_client() -> Arc<RpcClient> {
-    CLIENT.lock().unwrap().0.clone()
+/// Returns new instance of RpcClient.
+pub fn create_client() -> RpcClient {
+    RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment())
 }
 
 /// Converts amount of tokens from whole value to fractions (usually 10E-9).
@@ -91,7 +77,7 @@ pub async fn deposit_token(
 
     let id = id.to_owned();
     tokio::task::spawn_blocking(move || -> Result<()> {
-        let client = get_client();
+        let client = create_client();
         let mut instructions = Vec::with_capacity(4);
 
         let memo = format!("Neon Faucet {}", id.as_str());

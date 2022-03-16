@@ -5,7 +5,7 @@ use std::convert::TryFrom as _;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::str::FromStr as _;
-use std::sync::{Arc, RwLock};
+use std::sync::RwLock;
 
 use serde::{Deserialize, Serialize};
 
@@ -793,7 +793,7 @@ fn test_trim_first_and_last_chars() {
 }
 
 /// Reads NEON parameters from the EVM Loader account.
-pub async fn load_neon_params(client: Arc<RpcClient>) -> Result<()> {
+pub async fn load_neon_params(client: RpcClient) -> Result<()> {
     let params = tokio::task::spawn_blocking(move || -> Result<HashMap<String, String>> {
         read_neon_parameters_from_account(client)
     })
@@ -816,8 +816,7 @@ pub async fn load_neon_params(client: Arc<RpcClient>) -> Result<()> {
     Ok(())
 }
 
-#[allow(unused)]
-fn read_neon_parameters_from_account(client: Arc<RpcClient>) -> Result<HashMap<String, String>> {
+fn read_neon_parameters_from_account(client: RpcClient) -> Result<HashMap<String, String>> {
     let evm_loader_id = Pubkey::from_str(&solana_evm_loader())
         .map_err(|_| Error::InvalidPubkey(solana_evm_loader()))?;
 
