@@ -1,7 +1,6 @@
 //! Faucet Solana utilities module.
 
 use std::str::FromStr as _;
-use std::sync::Arc;
 
 use eyre::{eyre, Result, WrapErr};
 use tracing::info;
@@ -216,12 +215,4 @@ fn deposit_instruction(
             AccountMeta::new_readonly(spl_token_id, false),
         ],
     )
-}
-
-struct Client(Arc<RpcClient>);
-
-impl Default for Client {
-    fn default() -> Client {
-        Client(Arc::new(RpcClient::new(String::default())))
-    }
 }
