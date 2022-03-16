@@ -17,11 +17,6 @@ use solana_sdk::transaction::Transaction;
 
 use crate::{config, ethereum, id::ReqId};
 
-/// Returns new instance of RpcClient.
-pub fn create_client() -> RpcClient {
-    RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment())
-}
-
 /// Converts amount of tokens from whole value to fractions (usually 10E-9).
 pub fn convert_whole_to_fractions(amount: u64) -> Result<u64> {
     let decimals = config::solana_token_mint_decimals();
@@ -70,7 +65,8 @@ pub async fn deposit_token(
 
     let id = id.to_owned();
     tokio::task::spawn_blocking(move || -> Result<()> {
-        let client = create_client();
+        let client =
+            RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment());
         let mut instructions = Vec::with_capacity(4);
 
         let memo = format!("Neon Faucet {}", id.as_str());

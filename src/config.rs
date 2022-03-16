@@ -793,8 +793,9 @@ fn test_trim_first_and_last_chars() {
 }
 
 /// Reads NEON parameters from the EVM Loader account.
-pub async fn load_neon_params(client: RpcClient) -> Result<()> {
+pub async fn load_neon_params() -> Result<()> {
     let params = tokio::task::spawn_blocking(move || -> Result<HashMap<String, String>> {
+        let client = RpcClient::new_with_commitment(solana_url(), solana_commitment());
         read_neon_parameters_from_account(client)
     })
     .await
