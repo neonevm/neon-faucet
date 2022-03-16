@@ -22,7 +22,7 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
     info!("{} Processing NEON {:?}...", id, params);
 
     if config::solana_account_seed_version() == 0 {
-        config::load_neon_params(solana::create_client()).await?;
+        config::load_neon_params().await?;
     }
 
     let limit = if !params.in_fractions {
