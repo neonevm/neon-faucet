@@ -17,13 +17,6 @@ use solana_sdk::transaction::Transaction;
 
 use crate::{config, ethereum, id::ReqId};
 
-/// Checks connection with Solana.
-pub async fn is_alive() -> bool {
-    let ok = tokio::task::spawn_blocking(|| -> bool { create_client().get_block_height().is_ok() })
-        .await;
-    ok.unwrap_or(false)
-}
-
 /// Returns new instance of RpcClient.
 pub fn create_client() -> RpcClient {
     RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment())

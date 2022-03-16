@@ -22,10 +22,6 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
     info!("{} Processing NEON {:?}...", id, params);
 
     if config::solana_account_seed_version() == 0 {
-        // not yet initialized
-        if !solana::is_alive().await {
-            return Err(eyre!("Solana does not respond"));
-        }
         config::load_neon_params(solana::create_client()).await?;
     }
 
