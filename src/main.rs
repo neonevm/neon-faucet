@@ -3,6 +3,7 @@
 
 #![deny(warnings)]
 
+mod active_requests;
 mod cli;
 mod config;
 mod erc20_tokens;
