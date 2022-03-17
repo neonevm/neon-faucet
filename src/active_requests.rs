@@ -7,15 +7,13 @@ pub struct Guard;
 
 /// Increments counter of concurrent requests.
 pub fn increment() -> Guard {
-    let n = COUNTER.load(Ordering::Relaxed);
-    COUNTER.store(n + 1, Ordering::Relaxed);
+    COUNTER.fetch_add(1, Ordering::Relaxed);
     Guard {}
 }
 
 /// Decrements counter of concurrent requests.
 fn decrement() {
-    let n = COUNTER.load(Ordering::Relaxed);
-    COUNTER.store(n - 1, Ordering::Relaxed);
+    COUNTER.fetch_sub(1, Ordering::Relaxed);
 }
 
 impl Drop for Guard {
