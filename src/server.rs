@@ -7,7 +7,7 @@ use actix_web::{App, HttpResponse, HttpServer, Responder};
 use eyre::Result;
 use tracing::{error, info};
 
-use crate::{config, erc20_tokens, id, neon_token};
+use crate::{active_requests, config, erc20_tokens, id, neon_token};
 
 /// Starts the server in listening mode.
 pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> {
@@ -44,9 +44,11 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
 /// Handles a ping request.
 async fn handle_request_ping(body: Bytes) -> impl Responder {
     let id = id::generate();
+    let counter = active_requests::increment();
 
     println!();
     info!("{} Handling ping...", id);
+    info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
@@ -63,9 +65,11 @@ async fn handle_request_ping(body: Bytes) -> impl Responder {
 /// Handles a version request.
 async fn handle_request_version() -> impl Responder {
     let id = id::generate();
+    let counter = active_requests::increment();
 
     println!();
     info!("{} Handling version request...", id);
+    info!("{} Active requests: {}", id, counter);
 
     let version = crate::version::display!();
     info!("{} Faucet {}", id, version);
@@ -76,9 +80,11 @@ async fn handle_request_version() -> impl Responder {
 /// Handles a request for NEON airdrop in galans (1 galan = 10E-9 NEON).
 async fn handle_request_neon_in_galans(body: Bytes) -> impl Responder {
     let id = id::generate();
+    let counter = active_requests::increment();
 
     println!();
     info!("{} Handling Request for NEON (in galans) Airdrop...", id);
+    info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
@@ -106,9 +112,11 @@ async fn handle_request_neon_in_galans(body: Bytes) -> impl Responder {
 /// Handles a request for NEON airdrop.
 async fn handle_request_neon(body: Bytes) -> impl Responder {
     let id = id::generate();
+    let counter = active_requests::increment();
 
     println!();
     info!("{} Handling Request for NEON Airdrop...", id);
+    info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
@@ -134,9 +142,11 @@ async fn handle_request_neon(body: Bytes) -> impl Responder {
 /// Handles a request for ERC20 tokens airdrop.
 async fn handle_request_erc20(body: Bytes) -> impl Responder {
     let id = id::generate();
+    let counter = active_requests::increment();
 
     println!();
     info!("{} Handling Request for ERC20 Airdrop...", id);
+    info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
@@ -172,8 +182,10 @@ async fn handle_request_stop(body: Bytes) -> impl Responder {
     use tokio::time::Duration;
 
     let id = id::generate();
+    let counter = active_requests::increment();
 
     info!("{} Shutting down...", id);
+    info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
