@@ -2,7 +2,7 @@
 
 use std::str::FromStr as _;
 
-use eyre::{eyre, Result, WrapErr};
+use eyre::{eyre, Result, WrapErr as _};
 use tracing::info;
 
 use solana_client::rpc_client::RpcClient;
@@ -38,13 +38,13 @@ pub async fn deposit_token(
     in_fractions: bool,
 ) -> Result<()> {
     let evm_loader_id = Pubkey::from_str(&config::solana_evm_loader()).wrap_err_with(|| {
-        format!(
+        eyre!(
             "config::solana_evm_loader returns {}",
             &config::solana_evm_loader()
         )
     })?;
     let token_mint_id = Pubkey::from_str(&config::solana_token_mint_id()).wrap_err_with(|| {
-        format!(
+        eyre!(
             "config::solana_token_mint_id returns {}",
             &config::solana_token_mint_id(),
         )
