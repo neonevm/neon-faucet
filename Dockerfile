@@ -10,4 +10,3 @@ RUN mkdir -p /opt/faucet
 ADD internal/id.json /opt/faucet/
 COPY --from=builder /usr/src/faucet/target/release/faucet /opt/faucet/
 CMD ["/opt/faucet/faucet"]
-
