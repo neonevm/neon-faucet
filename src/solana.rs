@@ -13,8 +13,15 @@ use solana_sdk::signature::Signer as _;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::system_program;
 use solana_sdk::transaction::Transaction;
+use solana_sdk::compute_budget::ComputeBudgetInstruction;
 
-use crate::{config, ethereum, id::ReqId};
+use crate::config::{
+    self,
+    COMPUTE_BUDGET_UNITS,
+    COMPUTE_BUDGET_HEAP_FRAME,
+    REQUEST_UNITS_ADDITIONAL_FEE,
+};
+use crate::{ethereum, id::ReqId};
 
 /// Converts amount of tokens from whole value to fractions (usually 10E-9).
 pub fn convert_whole_to_fractions(amount: u64) -> Result<u64> {
@@ -66,7 +73,10 @@ pub async fn deposit_token(
     tokio::task::spawn_blocking(move || -> Result<()> {
         let client =
             RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment());
-        let mut instructions = Vec::with_capacity(4);
+        let mut instructions = Vec::with_capacity(6);
+
+        instructions.push(ComputeBudgetInstruction::request_units(COMPUTE_BUDGET_UNITS, REQUEST_UNITS_ADDITIONAL_FEE));
+        instructions.push(ComputeBudgetInstruction::request_heap_frame(COMPUTE_BUDGET_HEAP_FRAME));
 
         let memo = format!("Neon Faucet {}", id.as_str());
         instructions.push(spl_memo::build_memo(memo.as_bytes(), &[&signer_pubkey]));
@@ -125,7 +135,7 @@ pub async fn deposit_token(
         info!("{} Creating transaction...", id);
         let mut tx = Transaction::new_unsigned(message);
         info!("{} Getting recent blockhash...", id);
-        let (blockhash, _) = client.get_recent_blockhash()?;
+        let blockhash = client.get_latest_blockhash()?;
         info!("{} Signing transaction...", id);
         tx.try_sign(&[&signer], blockhash)?;
         info!("{} Sending and confirming transaction...", id);

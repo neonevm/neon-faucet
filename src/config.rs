@@ -887,3 +887,10 @@ fn read_elf_parameters(account_data: &[u8]) -> HashMap<String, String> {
 
     result
 }
+
+/// `OPERATOR_PRIORITY_SLOTS`
+pub const COMPUTE_BUDGET_UNITS: u32 = 500_000;
+/// `OPERATOR_PRIORITY_SLOTS`
+pub const COMPUTE_BUDGET_HEAP_FRAME: u32 = 256 * 1024;
+/// Additional fee for `request units` instruction
+pub const REQUEST_UNITS_ADDITIONAL_FEE: u32 = 0;
