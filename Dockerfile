@@ -1,9 +1,11 @@
 FROM rust as builder
 RUN apt update && apt install -y libudev-dev
-RUN git clone https://github.com/neonlabsorg/neon-faucet.git /usr/src/faucet
+COPY ./src /usr/src/faucet/src
+COPY ./Cargo.toml /usr/src/faucet
 WORKDIR /usr/src/faucet
-#RUN git checkout faucet-parallel-clients
-RUN FAUCET_REVISION=$(git rev-parse HEAD) cargo build --release
+ARG REVISION
+ENV FAUCET_REVISION=${REVISION}
+RUN cargo build --release
 
 FROM debian:11
 RUN mkdir -p /opt/faucet
