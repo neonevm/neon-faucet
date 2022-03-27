@@ -1,5 +1,5 @@
 FROM rust as builder
-RUN apt update && apt install libudev-dev
+RUN apt update && apt install -y libudev-dev
 RUN git clone https://github.com/neonlabsorg/neon-faucet.git /usr/src/faucet
 WORKDIR /usr/src/faucet
 #RUN git checkout faucet-parallel-clients
