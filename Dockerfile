@@ -1,6 +1,7 @@
 FROM rust as builder
 RUN apt update && apt install -y libudev-dev
 COPY ./src /usr/src/faucet/src
+COPY ./erc20 /usr/src/faucet/erc20
 COPY ./Cargo.toml /usr/src/faucet
 WORKDIR /usr/src/faucet
 ARG REVISION
