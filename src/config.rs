@@ -296,7 +296,7 @@ pub fn solana_compute_budget_heap_frame() -> u32 {
 
 /// Gets the `solana.request_units_additional_fee` value.
 pub fn solana_request_units_additional_fee() -> u32 {
-    0
+    0 // Is not exposed as neon parameter yet
 }
 
 /// Gets the `solana.operator` keypair value.
