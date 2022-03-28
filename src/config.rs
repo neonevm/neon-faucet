@@ -93,6 +93,8 @@ const EVM_LOADER: &str = "EVM_LOADER";
 const NEON_SEED_VERSION: &str = "NEON_SEED_VERSION";
 const NEON_TOKEN_MINT: &str = "NEON_TOKEN_MINT";
 const NEON_TOKEN_MINT_DECIMALS: &str = "NEON_TOKEN_MINT_DECIMALS";
+const NEON_COMPUTE_UNITS: &str = "NEON_COMPUTE_UNITS";
+const NEON_HEAP_FRAME: &str = "NEON_HEAP_FRAME";
 const NEON_OPERATOR_KEYFILE: &str = "NEON_OPERATOR_KEYFILE";
 const NEON_ETH_MAX_AMOUNT: &str = "NEON_ETH_MAX_AMOUNT";
 const NEON_LOG: &str = "NEON_LOG";
@@ -282,6 +284,21 @@ pub fn solana_token_mint_decimals() -> u8 {
     CONFIG.read().unwrap().solana.token_mint_decimals
 }
 
+/// Gets the `solana.compute_budget_units` value.
+pub fn solana_compute_budget_units() -> u32 {
+    CONFIG.read().unwrap().solana.compute_budget_units
+}
+
+/// Gets the `solana.compute_budget_heap_frame` value.
+pub fn solana_compute_budget_heap_frame() -> u32 {
+    CONFIG.read().unwrap().solana.compute_budget_heap_frame
+}
+
+/// Gets the `solana.request_units_additional_fee` value.
+pub fn solana_request_units_additional_fee() -> u32 {
+    0 // Is not exposed as neon parameter yet
+}
+
 /// Gets the `solana.operator` keypair value.
 pub fn solana_operator_keypair() -> Result<Keypair> {
     let keyfile = CONFIG.read().unwrap().solana.operator_keyfile.clone();
@@ -451,9 +468,11 @@ struct Solana {
     url: String,
     commitment: String,
     evm_loader: String,
-    account_seed_version: u8, // from neon params
-    token_mint: String,       // from neon params
-    token_mint_decimals: u8,  // from neon params
+    account_seed_version: u8,       // from neon params
+    token_mint: String,             // from neon params
+    token_mint_decimals: u8,        // from neon params
+    compute_budget_units: u32,      // from neon params
+    compute_budget_heap_frame: u32, // from neon params
     operator_keyfile: PathBuf,
     max_amount: u64,
 }
@@ -810,6 +829,12 @@ pub async fn load_neon_params() -> Result<()> {
             NEON_TOKEN_MINT_DECIMALS => {
                 CONFIG.write().unwrap().solana.token_mint_decimals = val.parse::<u8>()?
             }
+            NEON_COMPUTE_UNITS => {
+                CONFIG.write().unwrap().solana.compute_budget_units = val.parse::<u32>()?
+            }
+            NEON_HEAP_FRAME => {
+                CONFIG.write().unwrap().solana.compute_budget_heap_frame = val.parse::<u32>()?
+            }
             _ => {}
         }
     }
@@ -888,9 +913,3 @@ fn read_elf_parameters(account_data: &[u8]) -> HashMap<String, String> {
     result
 }
 
-/// `OPERATOR_PRIORITY_SLOTS`
-pub const COMPUTE_BUDGET_UNITS: u32 = 500_000;
-/// `OPERATOR_PRIORITY_SLOTS`
-pub const COMPUTE_BUDGET_HEAP_FRAME: u32 = 256 * 1024;
-/// Additional fee for `request units` instruction
-pub const REQUEST_UNITS_ADDITIONAL_FEE: u32 = 0;
