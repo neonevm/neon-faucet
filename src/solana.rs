@@ -107,6 +107,21 @@ pub async fn deposit_token(
         info!("{} signer_token_pubkey = {}", id, signer_token_pubkey);
         info!("{} evm_pool_pubkey = {}", id, evm_pool_pubkey);
         info!("{} evm_token_authority = {}", id, evm_token_authority);
+        info!(
+            "{} solana_compute_budget_units = {}",
+            id,
+            config::solana_compute_budget_units()
+        );
+        info!(
+            "{} solana_request_units_additional_fee = {}",
+            id,
+            config::solana_request_units_additional_fee()
+        );
+        info!(
+            "{} solana_compute_budget_heap_frame = {}",
+            id,
+            config::solana_compute_budget_heap_frame()
+        );
         info!("{} amount = {}", id, amount);
 
         instructions.push(spl_approve_instruction(
