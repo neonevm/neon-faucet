@@ -846,9 +846,10 @@ fn read_neon_parameters_from_account(client: RpcClient) -> Result<HashMap<String
     let evm_loader_id = Pubkey::from_str(&solana_evm_loader())
         .map_err(|_| Error::InvalidPubkey(solana_evm_loader()))?;
 
-    let account = client
-        .get_account(&evm_loader_id)
-        .map_err(|_| Error::AccountNotFound(evm_loader_id))?;
+    let account = client.get_account(&evm_loader_id).map_err(|e| {
+        error!("Failed get_account: {:?}", e);
+        Error::AccountNotFound(evm_loader_id)
+    })?;
 
     if account.owner == bpf_loader::id() || account.owner == bpf_loader_deprecated::id() {
         Ok(read_elf_parameters(&account.data))
@@ -912,4 +913,3 @@ fn read_elf_parameters(account_data: &[u8]) -> HashMap<String, String> {
 
     result
 }
-
