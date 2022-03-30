@@ -1,5 +1,11 @@
 //! Faucet manual module.
 
+const MANUAL_HEADER: &str = r##"
+# Neon Faucet
+
+The Neon Faucet is a service that distributes small amounts of tokens.
+"##;
+
 const MANUAL_API: &str = r##"
 # HTTP API Endpoints
 
@@ -136,6 +142,28 @@ Environment variables, if present, override portions of the configuration.
 |-
 "##;
 
+/// Dump manual in raw Markdown format.
+pub fn dump(api: bool, config: bool, env: bool) {
+    println!("{}", MANUAL_HEADER);
+
+    let all = !api && !config && !env;
+    if all {
+        println!("{}", MANUAL_API);
+        println!("{}", MANUAL_CONFIG);
+        println!("{}", MANUAL_ENV);
+    }
+
+    if api {
+        println!("{}", MANUAL_API);
+    }
+    if config {
+        println!("{}", MANUAL_CONFIG);
+    }
+    if env {
+        println!("{}", MANUAL_ENV);
+    }
+}
+
 use minimad::Alignment;
 use termimad::MadSkin;
 
@@ -143,6 +171,8 @@ use termimad::MadSkin;
 pub fn show(api: bool, config: bool, env: bool) {
     let mut skin = MadSkin::default();
     skin.headers[0].align = Alignment::Left;
+
+    skin.print_text(MANUAL_HEADER);
 
     let all = !api && !config && !env;
     if all {
