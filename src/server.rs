@@ -31,7 +31,6 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
             )
             .route("/request_neon", post().to(handle_request_neon))
             .route("/request_erc20", post().to(handle_request_erc20))
-            .route("/request_stop", post().to(handle_request_stop))
     })
     .bind((rpc_bind, rpc_port))?
     .workers(workers)
@@ -170,6 +169,7 @@ async fn handle_request_erc20(body: Bytes) -> impl Responder {
 }
 
 /// Handles a request for graceful shutdown.
+#[allow(unused)]
 async fn handle_request_stop(body: Bytes) -> impl Responder {
     #[derive(serde::Deserialize)]
     struct Stop {
