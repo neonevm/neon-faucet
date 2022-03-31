@@ -469,11 +469,11 @@ struct Solana {
     url: String,
     commitment: String,
     evm_loader: String,
-    account_seed_version: u8,       // from neon params
-    token_mint: String,             // from neon params
-    token_mint_decimals: u8,        // from neon params
-    compute_budget_units: u32,      // from neon params
-    compute_budget_heap_frame: u32, // from neon params
+    account_seed_version: u8,           // from neon params
+    token_mint: String,                 // from neon params
+    token_mint_decimals: u8,            // from neon params
+    compute_budget_units: u32,          // from neon params
+    compute_budget_heap_frame: u32,     // from neon params
     compute_budget_additional_fee: u32, // from neon params
     operator_keyfile: PathBuf,
     max_amount: u64,

@@ -30,7 +30,7 @@ pub enum Command {
         config: bool,
         #[structopt(long, help = "Shows environment variables manual")]
         env: bool,
-        #[structopt(long, help = "Dumps manual in markdown format")]
+        #[structopt(long, help = "Dumps manual in Markdown format")]
         raw: bool,
     },
 

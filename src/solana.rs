@@ -70,26 +70,16 @@ pub async fn deposit_token(
             RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment());
         let mut instructions = Vec::with_capacity(6);
 
-        instructions.push(ComputeBudgetInstruction::request_units(
-            config::solana_compute_budget_units(),
-            config::solana_request_units_additional_fee(),
-        ));
-        instructions.push(ComputeBudgetInstruction::request_heap_frame(
-            config::solana_compute_budget_heap_frame(),
-        ));
-
-        let memo = format!("Neon Faucet {}", id.as_str());
-        instructions.push(spl_memo::build_memo(memo.as_bytes(), &[&signer_pubkey]));
+        instructions.push(spl_memo(&id, &signer_pubkey));
+        instructions.push(compute_budget_instruction_request_units(&id));
+        instructions.push(compute_budget_instruction_request_heap_frame(&id));
 
         let ether_account = client.get_account(&ether_pubkey);
         if ether_account.is_err() {
-            info!(
-                "{} No ether account for {}; will be created",
-                id, ether_address
-            );
             instructions.push(create_ether_account_instruction(
-                signer_pubkey,
+                &id,
                 evm_loader_id,
+                signer_pubkey,
                 ether_address,
             ));
         }
@@ -100,31 +90,8 @@ pub async fn deposit_token(
             convert_whole_to_fractions(amount)?
         };
 
-        info!("{} ether_address = {}", id, ether_address);
-        info!("{} ether_pubkey = {}", id, ether_pubkey);
-        info!("{} spl_token id = {}", id, spl_token::id());
-        info!("{} signer_pubkey = {}", id, signer_pubkey);
-        info!("{} signer_token_pubkey = {}", id, signer_token_pubkey);
-        info!("{} evm_pool_pubkey = {}", id, evm_pool_pubkey);
-        info!("{} evm_token_authority = {}", id, evm_token_authority);
-        info!(
-            "{} solana_compute_budget_units = {}",
-            id,
-            config::solana_compute_budget_units()
-        );
-        info!(
-            "{} solana_request_units_additional_fee = {}",
-            id,
-            config::solana_request_units_additional_fee()
-        );
-        info!(
-            "{} solana_compute_budget_heap_frame = {}",
-            id,
-            config::solana_compute_budget_heap_frame()
-        );
-        info!("{} amount = {}", id, amount);
-
         instructions.push(spl_approve_instruction(
+            &id,
             spl_token::id(),
             signer_token_pubkey,
             evm_token_authority,
@@ -133,6 +100,7 @@ pub async fn deposit_token(
         ));
 
         instructions.push(deposit_instruction(
+            &id,
             signer_token_pubkey,
             evm_pool_pubkey,
             ether_pubkey,
@@ -149,7 +117,7 @@ pub async fn deposit_token(
         let message = Message::new(&instructions, Some(&signer_pubkey));
         info!("{} Creating transaction...", id);
         let mut tx = Transaction::new_unsigned(message);
-        info!("{} Getting recent blockhash...", id);
+        info!("{} Getting latest blockhash...", id);
         let blockhash = client.get_latest_blockhash()?;
         info!("{} Signing transaction...", id);
         tx.try_sign(&[&signer], blockhash)?;
@@ -176,13 +144,45 @@ fn ether_address_to_solana_pubkey(
     )
 }
 
+fn spl_memo(id: &ReqId, pubkey: &Pubkey) -> Instruction {
+    info!("{} Instruction: SPL Memo", id);
+    let memo = format!("Neon Faucet {}", id.as_str());
+    spl_memo::build_memo(memo.as_bytes(), &[pubkey])
+}
+
+fn compute_budget_instruction_request_units(id: &ReqId) -> Instruction {
+    info!("{} Instruction: ComputeBudgetInstruction::RequestUnits", id);
+    let units = config::solana_compute_budget_units();
+    let fee = config::solana_request_units_additional_fee();
+    info!("{} solana_compute_budget_units = {}", id, units);
+    info!("{} solana_request_units_additional_fee = {}", id, fee);
+    ComputeBudgetInstruction::request_units(units, fee)
+}
+
+fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
+    info!(
+        "{} Instruction: ComputeBudgetInstruction::RequestHeapFrame",
+        id
+    );
+    let hf = config::solana_compute_budget_heap_frame();
+    info!("{} solana_compute_budget_heap_frame = {}", id, hf);
+    ComputeBudgetInstruction::request_heap_frame(hf)
+}
+
 /// Returns instruction for creation of account.
 fn create_ether_account_instruction(
-    signer_pubkey: Pubkey,
+    id: &ReqId,
     evm_loader_id: Pubkey,
+    signer_pubkey: Pubkey,
     ether_address: ethereum::Address,
 ) -> Instruction {
+    info!("{} Instruction: CreateAccount", id);
     let (solana_address, nonce) = ether_address_to_solana_pubkey(&ether_address, &evm_loader_id);
+
+    info!("{} evm_loader_id {}", id, evm_loader_id);
+    info!("{} signer_pubkey {}", id, signer_pubkey);
+    info!("{} ether_address {}", id, ether_address);
+    info!("{} solana_address {}", id, solana_address);
 
     Instruction::new_with_bincode(
         evm_loader_id,
@@ -197,6 +197,7 @@ fn create_ether_account_instruction(
 
 /// Returns instruction to approve transfer of NEON tokens.
 fn spl_approve_instruction(
+    id: &ReqId,
     token_program_id: Pubkey,
     source_pubkey: Pubkey,
     delegate_pubkey: Pubkey,
@@ -204,6 +205,13 @@ fn spl_approve_instruction(
     amount: u64,
 ) -> Instruction {
     use spl_token::instruction::TokenInstruction;
+    info!("{} Instruction: TokenInstruction::Approve", id);
+
+    info!("{} spl_token id = {}", id, token_program_id);
+    info!("{} source_pubkey = {}", id, source_pubkey);
+    info!("{} delegate_pubkey = {}", id, delegate_pubkey);
+    info!("{} owner_pubkey = {}", id, owner_pubkey);
+    info!("{} amount = {}", id, amount);
 
     let accounts = vec![
         AccountMeta::new(source_pubkey, false),
@@ -222,6 +230,7 @@ fn spl_approve_instruction(
 
 /// Returns instruction to deposit NEON tokens.
 fn deposit_instruction(
+    id: &ReqId,
     source_pubkey: Pubkey,
     destination_pubkey: Pubkey,
     ether_account_pubkey: Pubkey,
@@ -229,6 +238,13 @@ fn deposit_instruction(
     evm_loader_id: Pubkey,
     spl_token_id: Pubkey,
 ) -> Instruction {
+    info!("{} Instruction: Deposit", id);
+
+    info!("{} source_pubkey = {}", id, source_pubkey);
+    info!("{} destination_pubkey = {}", id, destination_pubkey);
+    info!("{} ether_account_pubkey = {}", id, ether_account_pubkey);
+    info!("{} evm_token_authority = {}", id, evm_token_authority);
+
     Instruction::new_with_bincode(
         evm_loader_id,
         &(25_u8), // Index of the Deposit instruction in EVM Loader
