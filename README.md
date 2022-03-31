@@ -8,7 +8,6 @@ The Neon Faucet is a service that distributes small amounts of tokens.
 A client uses POST requests to send data to the server.
 Several endpoints are supported.
 
-|:-:|:-:|-
 |**Endpoint**|**Workload**|**Description**|
 |:-|:-:|-
 | request_ping | text | Requests ping to check availability of the service
@@ -17,7 +16,6 @@ Several endpoints are supported.
 | request_neon | JSON | Requests NEON tokens
 | request_erc20 | JSON | Requests ERC20 tokens
 | request_stop | | Initiates graceful shutdown
-|-
 
 Workload JSON schema:
 ```
@@ -63,7 +61,6 @@ curl -i -X POST \
 
 The configuration file should be in TOML format.
 
-|:-:|-
 |**Option**|**Description**|
 |:-|-
 | **rpc**.bind | Local interface TCP address
@@ -80,7 +77,6 @@ The configuration file should be in TOML format.
 | **solana**.operator_keyfile | Solana keyfile to support operations
 | **solana**.evm_loader | Address of the EVM Loader program
 | **solana**.max_amount | Largest amount of NEONs to distribute with a single request
-|-
 
 Example of the configuration file contents:
 ```
@@ -114,7 +110,6 @@ The configuration file is optional and, if present, can be incomplete
 
 Environment variables, if present, override portions of the configuration.
 
-|:-:|:-:|-
 |**Name**|**Overrides**|**Value Example**|
 |:-|:-|-
 | FAUCET_RPC_BIND | **rpc**.bind | `0.0.0.0`
@@ -133,4 +128,3 @@ Environment variables, if present, override portions of the configuration.
 | NEON_ETH_MAX_AMOUNT | **solana**.max_amount | `10`
 | NEON_LOG | | `json`
 | RUST_LOG | | `info`
-|-
