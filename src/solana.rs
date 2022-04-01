@@ -3,7 +3,7 @@
 use std::str::FromStr as _;
 
 use eyre::{eyre, Result, WrapErr as _};
-use tracing::info;
+use tracing::{info, warn};
 
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::compute_budget::ComputeBudgetInstruction;
@@ -154,8 +154,16 @@ fn compute_budget_instruction_request_units(id: &ReqId) -> Instruction {
     info!("{} Instruction: ComputeBudgetInstruction::RequestUnits", id);
     let units = config::solana_compute_budget_units();
     let fee = config::solana_request_units_additional_fee();
-    info!("{} solana_compute_budget_units = {}", id, units);
-    info!("{} solana_request_units_additional_fee = {}", id, fee);
+    if units == 0 {
+        warn!("{} solana_compute_budget_units = {}", id, units);
+    } else {
+        info!("{} solana_compute_budget_units = {}", id, units);
+    }
+    if fee == 0 {
+        warn!("{} solana_request_units_additional_fee = {}", id, fee);
+    } else {
+        info!("{} solana_request_units_additional_fee = {}", id, fee);
+    }
     ComputeBudgetInstruction::request_units(units, fee)
 }
 
@@ -165,7 +173,11 @@ fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
         id
     );
     let hf = config::solana_compute_budget_heap_frame();
-    info!("{} solana_compute_budget_heap_frame = {}", id, hf);
+    if hf == 0 {
+        warn!("{} solana_compute_budget_heap_frame = {}", id, hf);
+    } else {
+        info!("{} solana_compute_budget_heap_frame = {}", id, hf);
+    }
     ComputeBudgetInstruction::request_heap_frame(hf)
 }
 
