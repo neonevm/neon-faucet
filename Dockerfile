@@ -17,6 +17,7 @@ RUN cargo build --release
 FROM debian:11
 RUN mkdir -p /opt/faucet
 ADD internal/id.json /opt/faucet/
+RUN mkdir -p /root/.config/solana && ln -s /opt/faucet/id.json /root/.config/solana/id.json
 ADD *.sh /
 ADD faucet.conf /
 COPY --from=builder /usr/src/faucet/target/release/faucet /opt/faucet/
@@ -28,6 +29,7 @@ COPY --from=solana /opt/solana/bin/solana \
                 /opt/solana/bin/solana-genesis \
                 /usr/local/bin/
 COPY --from=spl /opt/spl-token \
+                /opt/neon-cli \
                 /opt/create-test-accounts.sh \
                 /opt/evm_loader-keypair.json \
                 /usr/local/bin/
