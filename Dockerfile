@@ -34,4 +34,7 @@ COPY --from=spl /opt/spl-token \
                 /opt/evm_loader-keypair.json \
                 /spl/bin/
 
+COPY --from=spl /opt/spl-token \
+                /usr/local/bin/
+
 CMD ["/opt/faucet/faucet"]
