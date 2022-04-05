@@ -32,6 +32,6 @@ COPY --from=spl /opt/spl-token \
                 /opt/neon-cli \
                 /opt/create-test-accounts.sh \
                 /opt/evm_loader-keypair.json \
-                /usr/local/bin/
+                /spl/bin/
 
 CMD ["/opt/faucet/faucet"]
