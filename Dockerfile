@@ -21,6 +21,7 @@ RUN mkdir -p /root/.config/solana && ln -s /opt/faucet/id.json /root/.config/sol
 ADD *.sh /
 ADD faucet.conf /
 COPY --from=builder /usr/src/faucet/target/release/faucet /opt/faucet/
+RUN ln -s /opt/faucet/faucet /usr/local/bin/
 
 COPY --from=solana /opt/solana/bin/solana \
                 /opt/solana/bin/solana-faucet \
