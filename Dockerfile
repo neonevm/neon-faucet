@@ -26,9 +26,10 @@ COPY --from=solana /opt/solana/bin/solana \
                 /opt/solana/bin/solana-keygen \
                 /opt/solana/bin/solana-validator \
                 /opt/solana/bin/solana-genesis \
-                /cli/bin/
+                /usr/local/bin/
 COPY --from=spl /opt/spl-token \
                 /opt/create-test-accounts.sh \
-                /opt/evm_loader-keypair.json /spl/bin/
+                /opt/evm_loader-keypair.json \
+                /usr/local/bin/
 
 CMD ["/opt/faucet/faucet"]
