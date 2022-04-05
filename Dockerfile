@@ -17,6 +17,8 @@ RUN cargo build --release
 FROM debian:11
 RUN mkdir -p /opt/faucet
 ADD internal/id.json /opt/faucet/
+ADD *.sh /
+ADD faucet.conf /
 COPY --from=builder /usr/src/faucet/target/release/faucet /opt/faucet/
 
 COPY --from=solana /opt/solana/bin/solana \
