@@ -30,6 +30,7 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
                 post().to(handle_request_neon_in_galans),
             )
             .route("/request_neon", post().to(handle_request_neon))
+            .route("/request_erc20_list", post().to(handle_request_erc20_list))
             .route("/request_erc20", post().to(handle_request_erc20))
     })
     .bind((rpc_bind, rpc_port))?
@@ -82,7 +83,7 @@ async fn handle_request_neon_in_galans(body: Bytes) -> impl Responder {
     let counter = active_requests::increment();
 
     println!();
-    info!("{} Handling Request for NEON (in galans) Airdrop...", id);
+    info!("{} Handling request for NEON (in galans) Airdrop...", id);
     info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
@@ -114,7 +115,7 @@ async fn handle_request_neon(body: Bytes) -> impl Responder {
     let counter = active_requests::increment();
 
     println!();
-    info!("{} Handling Request for NEON Airdrop...", id);
+    info!("{} Handling request for NEON Airdrop...", id);
     info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());
@@ -138,13 +139,37 @@ async fn handle_request_neon(body: Bytes) -> impl Responder {
     HttpResponse::Ok()
 }
 
+/// Handles a request for list of available ERC20 tokens.
+async fn handle_request_erc20_list() -> impl Responder {
+    let id = id::generate();
+    let counter = active_requests::increment();
+
+    println!();
+    info!("{} Handling request for list of ERC20...", id);
+    info!("{} Active requests: {}", id, counter);
+
+    let mut list = String::from("[");
+    for t in config::tokens() {
+        list.push('\'');
+        list.push_str(&t);
+        list.push('\'');
+        list.push(',');
+    }
+    if list.ends_with(',') {
+        list.pop();
+    }
+    list.push(']');
+
+    list
+}
+
 /// Handles a request for ERC20 tokens airdrop.
 async fn handle_request_erc20(body: Bytes) -> impl Responder {
     let id = id::generate();
     let counter = active_requests::increment();
 
     println!();
-    info!("{} Handling Request for ERC20 Airdrop...", id);
+    info!("{} Handling request for ERC20 Airdrop...", id);
     info!("{} Active requests: {}", id, counter);
 
     let input = String::from_utf8(body.to_vec());

@@ -19,6 +19,7 @@ Several endpoints are supported.
 | request_version | | Requests version of the service
 | request_neon_in_galans | JSON | Requests NEON tokens, amount in galans (fractions)
 | request_neon | JSON | Requests NEON tokens
+| request_erc20_list | | Requests list of available ERC20 tokens
 | request_erc20 | JSON | Requests ERC20 tokens
 |-
 
