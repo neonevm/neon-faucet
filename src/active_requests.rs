@@ -2,6 +2,10 @@
 
 use std::sync::atomic::{AtomicIsize, Ordering};
 
+lazy_static::lazy_static! {
+    static ref COUNTER: AtomicIsize = AtomicIsize::new(0);
+}
+
 /// Tracks counter of concurrent requests.
 pub struct Guard;
 
@@ -28,8 +32,4 @@ impl fmt::Display for Guard {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", COUNTER.load(Ordering::Relaxed))
     }
-}
-
-lazy_static::lazy_static! {
-    static ref COUNTER: AtomicIsize = AtomicIsize::new(0);
 }

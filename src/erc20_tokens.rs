@@ -2,7 +2,7 @@
 
 use derive_new::new;
 use eyre::{eyre, Result};
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 use futures_locks::RwLock;
 use secp256k1::SecretKey;
@@ -82,7 +82,7 @@ async fn init<T: Transport>(id: &ReqId, eth: Eth<T>, addresses: Vec<String>) -> 
         );
     }
 
-    info!("{} All tokens are deployed and sane", id);
+    debug!("{} All tokens are deployed and sane", id);
     Ok(())
 }
 
@@ -106,7 +106,7 @@ async fn transfer<T: Transport>(
             e
         })?;
 
-    info!(
+    debug!(
         "{} Sending transaction for transfer of token {}...",
         id, token_name
     );
@@ -146,7 +146,7 @@ async fn get_decimals<T: Transport>(
     let decimals = token
         .query("decimals", (), None, Options::default(), None)
         .await?;
-    info!(
+    debug!(
         "{} ERC20 token {} has decimals {}",
         id, token_address, decimals
     );
