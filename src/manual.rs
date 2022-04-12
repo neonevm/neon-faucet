@@ -22,26 +22,12 @@ Several endpoints are supported.
 | request_erc20 | JSON | Requests ERC20 tokens
 |-
 
-Workload JSON schema:
-```
-{
-    "type": "object",
-    "properties": {
-        "**wallet**": {
-            "type": "string",
-            "description": "Address of an Ethereum account"
-        },
-        "**amount**": {
-            "type": "integer",
-            "description": "Amount of tokens to receive",
-        }
-    }
-}
-```
-
-Example of JSON workload:
+Examples of JSON workload:
 ```
 { "wallet": "0x4570e07200b6332989Dc04fA2a671b839D26eF0E", "amount": 1 }
+```
+```
+{ "wallet": "0x4570e07200b6332989Dc04fA2a671b839D26eF0E", "token_addr": "0x00000000000000000000000000000000CafeBabe", "amount": 10 }
 ```
 
 Example of ping request with **curl** utility:
@@ -57,8 +43,18 @@ curl -i -X POST 'http://localhost:3333/request_version'
 Example of NEON drop request with **curl** utility:
 ```
 curl -i -X POST \
-    -d '{"wallet": "0x4570e07200b6332989Dc04fA2a671b839D26eF0E", "amount": 1}' \
+    -d '{"wallet": "0x4570e07200b6332989Dc04fA2a671b839D26eF0E", \
+         "amount": 1}' \
     'http://localhost:3333/request_neon'
+```
+
+Example of ERC20 drop request with **curl** utility:
+```
+curl -i -X POST \
+    -d '{"wallet": "0x4570e07200b6332989Dc04fA2a671b839D26eF0E", \
+         "token_addr": "0x00000000000000000000000000000000CafeBabe", \
+         "amount": 1}' \
+    'http://localhost:3333/request_erc20'
 ```
 "##;
 

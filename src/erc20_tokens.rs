@@ -2,7 +2,7 @@
 
 use derive_new::new;
 use eyre::{eyre, Result};
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 use futures_locks::RwLock;
 use secp256k1::SecretKey;
@@ -14,11 +14,13 @@ use web3::Transport;
 
 use crate::{config, ethereum, id::ReqId};
 
-/// Represents packet of information needed for single airdrop operation.
+/// Represents packet of information needed for an airdrop operation.
 #[derive(Debug, serde::Deserialize)]
 pub struct Airdrop {
     /// Ethereum address of the recipient.
     wallet: String,
+    /// ERC20 Token address. If missing, do all tokens.
+    token_addr: Option<String>,
     /// Amount of a token to be received.
     amount: u64,
 }
@@ -26,6 +28,14 @@ pub struct Airdrop {
 /// Processes the airdrop: sends needed transactions into Ethereum.
 pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
     info!("{} Processing ERC20 {:?}...", id, params);
+
+    let mut known_tokens = config::tokens();
+
+    if let Some(ref token_addr) = params.token_addr {
+        if !known_tokens.contains(token_addr) {
+            return Err(eyre!("Requested unknown ERC20 '{}'", token_addr));
+        }
+    }
 
     if params.amount > config::web3_max_amount() {
         return Err(eyre!(
@@ -40,13 +50,17 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
     let web3 = web3::Web3::new(http);
 
     if TOKENS.read().await.is_empty() {
-        init(id, web3.eth().clone(), config::tokens()).await?;
+        init(id, web3.eth().clone(), &known_tokens).await?;
     }
 
     let recipient = ethereum::address_from_str(&params.wallet)?;
     let amount = U256::from(params.amount);
 
-    for token in &config::tokens() {
+    if let Some(token_addr) = params.token_addr {
+        known_tokens = vec![token_addr]
+    };
+
+    for token in &known_tokens {
         let factor = U256::from(multiplication_factor(token).await?);
         let internal_amount = amount
             .checked_mul(factor)
@@ -71,13 +85,13 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
 }
 
 /// Initializes local cache of tokens properties.
-async fn init<T: Transport>(id: &ReqId, eth: Eth<T>, addresses: Vec<String>) -> Result<()> {
+async fn init<T: Transport>(id: &ReqId, eth: Eth<T>, addresses: &Vec<String>) -> Result<()> {
     info!("{} Checking tokens...", id);
 
     for token_address in addresses {
-        let a = ethereum::address_from_str(&token_address)?;
+        let a = ethereum::address_from_str(token_address)?;
         TOKENS.write().await.insert(
-            token_address,
+            token_address.to_string(),
             Token::new(get_decimals(id, eth.clone(), a).await?),
         );
     }
@@ -106,7 +120,7 @@ async fn transfer<T: Transport>(
             e
         })?;
 
-    info!(
+    debug!(
         "{} Sending transaction for transfer of token {}...",
         id, token_name
     );
@@ -146,7 +160,7 @@ async fn get_decimals<T: Transport>(
     let decimals = token
         .query("decimals", (), None, Options::default(), None)
         .await?;
-    info!(
+    debug!(
         "{} ERC20 token {} has decimals {}",
         id, token_address, decimals
     );
