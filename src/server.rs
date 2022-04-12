@@ -155,7 +155,9 @@ async fn handle_request_erc20_list() -> impl Responder {
         list.push('\'');
         list.push(',');
     }
-    list.pop(); // remove last comma
+    if list.ends_with(',') {
+        list.pop();
+    }
     list.push(']');
 
     list
