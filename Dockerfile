@@ -34,7 +34,9 @@ COPY --from=spl /opt/spl-token \
                 /opt/neon-cli \
                 /opt/create-test-accounts.sh \
                 /opt/evm_loader-keypair.json \
-                /spl/bin/
+                /spl/bin/ 
+
+COPY --from=spl /opt/contracts/ci-tokens/owner-keypair.json /opt/faucet
 
 COPY --from=spl /opt/spl-token \
                 /usr/local/bin/
