@@ -25,18 +25,20 @@ COPY --from=builder /usr/src/faucet/target/release/faucet /opt/faucet/
 RUN ln -s /opt/faucet/faucet /usr/local/bin/
 
 COPY --from=solana /opt/solana/bin/solana \
-                /opt/solana/bin/solana-faucet \
-                /opt/solana/bin/solana-keygen \
-                /opt/solana/bin/solana-validator \
-                /opt/solana/bin/solana-genesis \
-                /usr/local/bin/
+		/opt/solana/bin/solana-faucet \
+		/opt/solana/bin/solana-keygen \
+		/opt/solana/bin/solana-validator \
+		/opt/solana/bin/solana-genesis \
+		/usr/local/bin/
 COPY --from=spl /opt/spl-token \
-                /opt/neon-cli \
-                /opt/create-test-accounts.sh \
-                /opt/evm_loader-keypair.json \
-                /spl/bin/
+		/opt/neon-cli \
+		/opt/create-test-accounts.sh \
+		/opt/evm_loader-keypair.json \
+		/spl/bin/
+
+COPY --from=spl /opt/contracts/ci-tokens/owner-keypair.json /opt/faucet
 
 COPY --from=spl /opt/spl-token \
-                /usr/local/bin/
+		/usr/local/bin/
 
 CMD ["/opt/faucet/faucet"]
