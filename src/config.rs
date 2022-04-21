@@ -84,8 +84,8 @@ const FAUCET_RPC_ALLOWED_ORIGINS: &str = "FAUCET_RPC_ALLOWED_ORIGINS";
 const FAUCET_WEB3_ENABLE: &str = "FAUCET_WEB3_ENABLE";
 const WEB3_RPC_URL: &str = "WEB3_RPC_URL";
 const WEB3_PRIVATE_KEY: &str = "WEB3_PRIVATE_KEY";
-const NEON_ERC20_TOKENS: &str = "NEON_ERC20_TOKENS";
-const NEON_ERC20_MAX_AMOUNT: &str = "NEON_ERC20_MAX_AMOUNT";
+const WEB3_ERC20_TOKENS: &str = "WEB3_ERC20_TOKENS";
+const WEB3_ERC20_MAX_AMOUNT: &str = "WEB3_ERC20_MAX_AMOUNT";
 const FAUCET_SOLANA_ENABLE: &str = "FAUCET_SOLANA_ENABLE";
 const SOLANA_URL: &str = "SOLANA_URL";
 const SOLANA_COMMITMENT: &str = "SOLANA_COMMITMENT";
@@ -109,8 +109,8 @@ static ENV: &[&str] = &[
     FAUCET_WEB3_ENABLE,
     WEB3_RPC_URL,
     WEB3_PRIVATE_KEY,
-    NEON_ERC20_TOKENS,
-    NEON_ERC20_MAX_AMOUNT,
+    WEB3_ERC20_TOKENS,
+    WEB3_ERC20_MAX_AMOUNT,
     FAUCET_SOLANA_ENABLE,
     SOLANA_URL,
     SOLANA_COMMITMENT,
@@ -158,10 +158,10 @@ pub fn load(file: &Path) -> Result<()> {
                 FAUCET_WEB3_ENABLE => CONFIG.write().unwrap().web3.enable = val.parse::<bool>()?,
                 WEB3_RPC_URL => CONFIG.write().unwrap().web3.rpc_url = val,
                 WEB3_PRIVATE_KEY => CONFIG.write().unwrap().web3.private_key = val,
-                NEON_ERC20_TOKENS => {
+                WEB3_ERC20_TOKENS => {
                     CONFIG.write().unwrap().web3.tokens = parse_list_of_strings(&val)?
                 }
-                NEON_ERC20_MAX_AMOUNT => {
+                WEB3_ERC20_MAX_AMOUNT => {
                     CONFIG.write().unwrap().web3.max_amount = val.parse::<u64>()?
                 }
                 FAUCET_SOLANA_ENABLE => {
@@ -447,14 +447,14 @@ impl std::fmt::Display for Web3 {
             "web3.tokens = {:?}",
             obfuscate_list_of_strings(&self.tokens)
         )?;
-        if env::var(NEON_ERC20_TOKENS).is_ok() {
-            writeln!(f, " (overridden by {})", NEON_ERC20_TOKENS)?;
+        if env::var(WEB3_ERC20_TOKENS).is_ok() {
+            writeln!(f, " (overridden by {})", WEB3_ERC20_TOKENS)?;
         } else {
             writeln!(f)?;
         }
         write!(f, "web3.max_amount = {}", self.max_amount)?;
-        if env::var(NEON_ERC20_MAX_AMOUNT).is_ok() {
-            write!(f, " (overridden by {})", NEON_ERC20_MAX_AMOUNT)
+        if env::var(WEB3_ERC20_MAX_AMOUNT).is_ok() {
+            write!(f, " (overridden by {})", WEB3_ERC20_MAX_AMOUNT)
         } else {
             write!(f, "")
         }

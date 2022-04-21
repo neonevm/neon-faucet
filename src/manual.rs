@@ -125,8 +125,8 @@ Environment variables, if present, override portions of the configuration.
 | FAUCET_WEB3_ENABLE | **web3**.enable | `true`
 | WEB3_RPC_URL | **web3**.rpc_url | `http://localhost:9090/solana`
 | WEB3_PRIVATE_KEY | **web3**.private_key | `0x00A`
-| NEON_ERC20_TOKENS | **web3**.tokens | `["0x00B", "0x00C"]`
-| NEON_ERC20_MAX_AMOUNT | **web3**.max_amount | `1000`
+| WEB3_ERC20_TOKENS | **web3**.tokens | `["0x00B", "0x00C"]`
+| WEB3_ERC20_MAX_AMOUNT | **web3**.max_amount | `1000`
 | FAUCET_SOLANA_ENABLE | **solana**.enable | `true`
 | SOLANA_URL | **solana**.url | `http://localhost:8899`
 | SOLANA_COMMITMENT | **solana**.commitment | `processed`

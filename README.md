@@ -16,23 +16,6 @@ Several endpoints are supported.
 | request_neon | JSON | Requests NEON tokens
 | request_erc20 | JSON | Requests ERC20 tokens
 
-Workload JSON schema:
-```
-{
-    "type": "object",
-    "properties": {
-        "**wallet**": {
-            "type": "string",
-            "description": "Address of an Ethereum account"
-        },
-        "**amount**": {
-            "type": "integer",
-            "description": "Amount of tokens to receive",
-        }
-    }
-}
-```
-
 Example of JSON workload:
 ```
 { "wallet": "0x4570e07200b6332989Dc04fA2a671b839D26eF0E", "amount": 1 }
@@ -117,8 +100,8 @@ Environment variables, if present, override portions of the configuration.
 | FAUCET_WEB3_ENABLE | **web3**.enable | `true`
 | WEB3_RPC_URL | **web3**.rpc_url | `http://localhost:9090/solana`
 | WEB3_PRIVATE_KEY | **web3**.private_key | `0x00A`
-| NEON_ERC20_TOKENS | **web3**.tokens | `["0x00B", "0x00C"]`
-| NEON_ERC20_MAX_AMOUNT | **web3**.max_amount | `1000`
+| WEB3_ERC20_TOKENS | **web3**.tokens | `["0x00B", "0x00C"]`
+| WEB3_ERC20_MAX_AMOUNT | **web3**.max_amount | `1000`
 | FAUCET_SOLANA_ENABLE | **solana**.enable | `true`
 | SOLANA_URL | **solana**.url | `http://localhost:8899`
 | SOLANA_COMMITMENT | **solana**.commitment | `processed`
