@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 use std::convert::TryFrom as _;
 use std::env;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr as _;
 use std::sync::RwLock;
@@ -303,7 +304,7 @@ pub fn solana_request_units_additional_fee() -> u32 {
 /// Gets the `solana.operator` keypair value.
 pub fn solana_operator_keypair() -> Result<Keypair> {
     let keyfile = CONFIG.read().unwrap().solana.operator_keyfile.clone();
-    let key = std::fs::read_to_string(&keyfile).map_err(|e| Error::Read(e, keyfile.clone()))?;
+    let key = fs::read_to_string(&keyfile).map_err(|e| Error::Read(e, keyfile.clone()))?;
     let key = key.trim();
     if !(key.starts_with('[') && key.ends_with(']')) {
         return Err(Error::InvalidKeypair(key.into(), keyfile));
@@ -585,7 +586,7 @@ struct Faucet {
 impl Faucet {
     /// Constructs config from a file.
     fn load(&mut self, file: &Path) -> Result<()> {
-        let text = std::fs::read_to_string(file).map_err(|e| Error::Read(e, file.to_owned()))?;
+        let text = fs::read_to_string(file).map_err(|e| Error::Read(e, file.to_owned()))?;
         *self = toml::from_str(&text).map_err(|e| Error::Parse(e, file.to_owned()))?;
         Ok(())
     }
