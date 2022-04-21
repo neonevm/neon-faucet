@@ -49,16 +49,16 @@ pub enum Error {
     #[error("Failed to parse string literal '{0}' from config")]
     ParseString(String),
 
-    #[error("Invalid private key '{0}' in file '{1}'")]
+    #[error("Invalid Ethereum private key '{0}' in file '{1}'")]
     InvalidPrivateKey(String, PathBuf),
 
-    #[error("Invalid keypair '{0}' in file '{1}'")]
+    #[error("Invalid Solana keypair '{0}' in file '{1}'")]
     InvalidKeypair(String, PathBuf),
 
-    #[error("Failed to parse keypair")]
+    #[error("Failed to parse Solana keypair")]
     ParseKeypair(#[from] ed25519_dalek::SignatureError),
 
-    #[error("Invalid pubkey '{0}'")]
+    #[error("Invalid Solana pubkey '{0}'")]
     InvalidPubkey(String),
 
     #[error("Invalid value '{1}' of parameter '{0}'")]
@@ -626,15 +626,11 @@ where
     }
     let key = fs::read_to_string(&keyfile).map_err(|e| Error::Read(e, keyfile.clone()))?;
     let key = key.trim().to_owned();
-    let key = ethereum::strip_0x_prefix(&key).to_owned();
-    let _: secp256k1::SecretKey = key
+    let result = ethereum::strip_0x_prefix(&key).to_owned();
+    let _: secp256k1::SecretKey = result
         .parse()
-        .map_err(|_| Error::InvalidPrivateKey(key.clone(), keyfile))?;
-    Ok(key)
-}
-
-fn obfuscate_list_of_strings(keys: &[String]) -> Vec<String> {
-    keys.iter().map(|s| obfuscate_string(s)).collect()
+        .map_err(|_| Error::InvalidPrivateKey(key, keyfile))?;
+    Ok(result)
 }
 
 /// Cuts middle part of a key like `0x1234ABC`.
@@ -647,6 +643,10 @@ fn obfuscate_string(key: &str) -> String {
     } else {
         format!("{}•••{}", &key[..prefix_len], &key[len - suffix_len..])
     }
+}
+
+fn obfuscate_list_of_strings(keys: &[String]) -> Vec<String> {
+    keys.iter().map(|s| obfuscate_string(s)).collect()
 }
 
 /// Cuts middle part of a key like `[1,2,3...N]`.
