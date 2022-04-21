@@ -8,6 +8,8 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr as _;
 use std::sync::RwLock;
 
+use nix::NixPath as _; // to check if PathBuf is empty
+
 use serde::{Deserialize, Serialize};
 
 use tracing::{error, warn};
@@ -47,7 +49,10 @@ pub enum Error {
     #[error("Failed to parse string literal '{0}' from config")]
     ParseString(String),
 
-    #[error("Invalid keypair '{0}' from file '{1}'")]
+    #[error("Invalid private key '{0}' in file '{1}'")]
+    InvalidPrivateKey(String, PathBuf),
+
+    #[error("Invalid keypair '{0}' in file '{1}'")]
     InvalidKeypair(String, PathBuf),
 
     #[error("Failed to parse keypair")]
@@ -158,7 +163,9 @@ pub fn load(file: &Path) -> Result<()> {
                 }
                 FAUCET_WEB3_ENABLE => CONFIG.write().unwrap().web3.enable = val.parse::<bool>()?,
                 WEB3_RPC_URL => CONFIG.write().unwrap().web3.rpc_url = val,
-                WEB3_PRIVATE_KEY => CONFIG.write().unwrap().web3.private_key = val,
+                WEB3_PRIVATE_KEY => {
+                    CONFIG.write().unwrap().web3.private_key = read_private_key(&val)?
+                }
                 WEB3_ERC20_TOKENS => {
                     CONFIG.write().unwrap().web3.tokens = parse_list_of_strings(&val)?
                 }
@@ -224,10 +231,9 @@ pub fn web3_rpc_url() -> String {
     CONFIG.read().unwrap().web3.rpc_url.clone()
 }
 
-/// Gets the `web3.private_key` value. Removes prefix 0x if any.
+/// Gets the `web3.private_key` value.
 pub fn web3_private_key() -> String {
-    let key = &CONFIG.read().unwrap().web3.private_key;
-    ethereum::strip_0x_prefix(key).to_owned()
+    CONFIG.read().unwrap().web3.private_key.clone()
 }
 
 /// Gets the `web3.tokens` addresses.
@@ -435,7 +441,7 @@ impl std::fmt::Display for Web3 {
         }
         write!(
             f,
-            "web3.private_key = \"{}\"",
+            "web3.private_key = \"0x{}\"",
             obfuscate_string(&self.private_key)
         )?;
         if env::var(WEB3_PRIVATE_KEY).is_ok() {
@@ -507,7 +513,6 @@ impl Solana {
                     self.evm_loader.clone(),
                 ));
             }
-            use nix::NixPath as _; // to check if PathBuf is empty
             if self.operator_keyfile.is_empty() {
                 return Err(Error::InvalidParameter(
                     "solana.operator_keyfile".into(),
@@ -588,6 +593,7 @@ impl Faucet {
     fn load(&mut self, file: &Path) -> Result<()> {
         let text = fs::read_to_string(file).map_err(|e| Error::Read(e, file.to_owned()))?;
         *self = toml::from_str(&text).map_err(|e| Error::Parse(e, file.to_owned()))?;
+        self.web3.private_key = read_private_key(&self.web3.private_key)?;
         Ok(())
     }
 
@@ -606,6 +612,25 @@ impl std::fmt::Display for Faucet {
         writeln!(f, "{}", self.web3)?;
         write!(f, "{}", self.solana)
     }
+}
+
+/// Reads an Ethereum private key from file.
+/// Checks the contents of the file.
+fn read_private_key<P>(keyfile: P) -> Result<String>
+where
+    P: AsRef<Path>,
+{
+    let keyfile = keyfile.as_ref().to_owned();
+    if keyfile.is_empty() {
+        return Ok(String::default());
+    }
+    let key = fs::read_to_string(&keyfile).map_err(|e| Error::Read(e, keyfile.clone()))?;
+    let key = key.trim().to_owned();
+    let key = ethereum::strip_0x_prefix(&key).to_owned();
+    let _: secp256k1::SecretKey = key
+        .parse()
+        .map_err(|_| Error::InvalidPrivateKey(key.clone(), keyfile))?;
+    Ok(key)
 }
 
 fn obfuscate_list_of_strings(keys: &[String]) -> Vec<String> {

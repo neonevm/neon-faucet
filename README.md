@@ -50,7 +50,7 @@ The configuration file should be in TOML format.
 | **rpc**.allowed_origins | List of client URLs that can send requests
 | **web3**.enable | Flag to on/off the entire **web3** section
 | **web3**.rpc_url | Ethereum network endpoint
-| **web3**.private_key | Ethereum private key to support operations
+| **web3**.private_key | Ethereum private keyfile
 | **web3**.tokens | List of available ERC20 token addresses
 | **web3**.max_amount | Largest amount of ERC20 tokens to distribute with a single request
 | **solana**.enable | Flag to on/off the entire **solana** section
@@ -70,7 +70,7 @@ allowed_origins = ["http://localhost"]
 [web3]
 enable = true
 rpc_url = "http://localhost:9090/solana"
-private_key = "0x0000000000000000000000000000000000000000000000000000000000000Ace"
+private_key = "web3_admin.key"
 tokens = ["0x00000000000000000000000000000000CafeBabe",
           "0x00000000000000000000000000000000DeadBeef"]
 max_amount = 1000
@@ -99,7 +99,7 @@ Environment variables, if present, override portions of the configuration.
 | FAUCET_RPC_ALLOWED_ORIGINS | **rpc**.allowed_origins | `["http://localhost"]`
 | FAUCET_WEB3_ENABLE | **web3**.enable | `true`
 | WEB3_RPC_URL | **web3**.rpc_url | `http://localhost:9090/solana`
-| WEB3_PRIVATE_KEY | **web3**.private_key | `0x00A`
+| WEB3_PRIVATE_KEY | **web3**.private_key | `"web3_admin.key"`
 | WEB3_ERC20_TOKENS | **web3**.tokens | `["0x00B", "0x00C"]`
 | WEB3_ERC20_MAX_AMOUNT | **web3**.max_amount | `1000`
 | FAUCET_SOLANA_ENABLE | **solana**.enable | `true`
