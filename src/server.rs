@@ -1,7 +1,7 @@
 //! Faucet server implementation.
 
 use actix_cors::Cors;
-use actix_web::http::header;
+use actix_web::http::{header, StatusCode};
 use actix_web::web::{get, post, Bytes};
 use actix_web::{App, HttpResponse, HttpServer, Responder};
 use eyre::Result;
@@ -53,13 +53,13 @@ async fn handle_request_ping(body: Bytes) -> impl Responder {
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
         error!("{} BadRequest (body): {}", id, err);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let ping = input.unwrap();
     info!("{} Ping '{}'", id, ping);
 
-    HttpResponse::Ok()
+    HttpResponse::with_body(StatusCode::OK, ping)
 }
 
 /// Handles a version request.
@@ -89,24 +89,24 @@ async fn handle_request_neon_in_galans(body: Bytes) -> impl Responder {
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
         error!("{} BadRequest (body): {}", id, err);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let input = input.unwrap();
     let airdrop = serde_json::from_str::<neon_token::Airdrop>(&input);
     if let Err(err) = airdrop {
         error!("{} BadRequest (json): {} in '{}'", id, err, input);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let mut airdrop = airdrop.unwrap();
     airdrop.in_fractions = true;
     if let Err(err) = neon_token::airdrop(&id, airdrop).await {
         error!("{} InternalServerError: {}", id, err);
-        return HttpResponse::InternalServerError();
+        return HttpResponse::with_body(StatusCode::INTERNAL_SERVER_ERROR, err.to_string());
     }
 
-    HttpResponse::Ok()
+    HttpResponse::with_body(StatusCode::OK, String::default())
 }
 
 /// Handles a request for NEON airdrop.
@@ -121,22 +121,22 @@ async fn handle_request_neon(body: Bytes) -> impl Responder {
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
         error!("{} BadRequest (body): {}", id, err);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let input = input.unwrap();
     let airdrop = serde_json::from_str::<neon_token::Airdrop>(&input);
     if let Err(err) = airdrop {
         error!("{} BadRequest (json): {} in '{}'", id, err, input);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     if let Err(err) = neon_token::airdrop(&id, airdrop.unwrap()).await {
         error!("{} InternalServerError: {}", id, err);
-        return HttpResponse::InternalServerError();
+        return HttpResponse::with_body(StatusCode::INTERNAL_SERVER_ERROR, err.to_string());
     }
 
-    HttpResponse::Ok()
+    HttpResponse::with_body(StatusCode::OK, String::default())
 }
 
 /// Handles a request for list of available ERC20 tokens.
@@ -175,22 +175,22 @@ async fn handle_request_erc20(body: Bytes) -> impl Responder {
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
         error!("{} BadRequest (body): {}", id, err);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let input = input.unwrap();
     let airdrop = serde_json::from_str::<erc20_tokens::Airdrop>(&input);
     if let Err(err) = airdrop {
         error!("{} BadRequest (json): {} in '{}'", id, err, input);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     if let Err(err) = erc20_tokens::airdrop(&id, airdrop.unwrap()).await {
         error!("{} InternalServerError: {}", id, err);
-        return HttpResponse::InternalServerError();
+        return HttpResponse::with_body(StatusCode::INTERNAL_SERVER_ERROR, err.to_string());
     }
 
-    HttpResponse::Ok()
+    HttpResponse::with_body(StatusCode::OK, String::default())
 }
 
 /// Handles a request for graceful shutdown.
@@ -215,14 +215,14 @@ async fn handle_request_stop(body: Bytes) -> impl Responder {
     let input = String::from_utf8(body.to_vec());
     if let Err(err) = input {
         error!("{} BadRequest (body): {}", id, err);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let input = input.unwrap();
     let stop = serde_json::from_str::<Stop>(&input);
     if let Err(err) = stop {
         error!("{} BadRequest (json): {} in '{}'", id, err, input);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
     let delay = stop.unwrap().delay;
@@ -234,8 +234,8 @@ async fn handle_request_stop(body: Bytes) -> impl Responder {
     let terminate = signal::kill(Pid::this(), signal::SIGTERM);
     if let Err(err) = terminate {
         error!("{} BadRequest (terminate): {}", id, err);
-        return HttpResponse::BadRequest();
+        return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
-    HttpResponse::Ok()
+    HttpResponse::with_body(StatusCode::OK, String::default())
 }
