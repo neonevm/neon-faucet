@@ -15,7 +15,7 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
 
     HttpServer::new(|| {
         let mut cors = Cors::default()
-            .allowed_methods(vec!["POST"])
+            .allowed_methods(vec!["GET", "POST"])
             .allowed_header(header::CONTENT_TYPE)
             .max_age(3600);
         for origin in &config::allowed_origins() {
