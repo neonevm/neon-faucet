@@ -2,7 +2,7 @@
 
 use actix_cors::Cors;
 use actix_web::http::header;
-use actix_web::web::{post, Bytes};
+use actix_web::web::{get, post, Bytes};
 use actix_web::{App, HttpResponse, HttpServer, Responder};
 use eyre::Result;
 use tracing::{error, info};
@@ -23,14 +23,14 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
         }
         App::new()
             .wrap(cors)
-            .route("/request_ping", post().to(handle_request_ping))
-            .route("/request_version", post().to(handle_request_version))
+            .route("/request_ping", get().to(handle_request_ping))
+            .route("/request_version", get().to(handle_request_version))
             .route(
                 "/request_neon_in_galans",
                 post().to(handle_request_neon_in_galans),
             )
             .route("/request_neon", post().to(handle_request_neon))
-            .route("/request_erc20_list", post().to(handle_request_erc20_list))
+            .route("/request_erc20_list", get().to(handle_request_erc20_list))
             .route("/request_erc20", post().to(handle_request_erc20))
     })
     .bind((rpc_bind, rpc_port))?
@@ -150,9 +150,9 @@ async fn handle_request_erc20_list() -> impl Responder {
 
     let mut list = String::from("[");
     for t in config::tokens() {
-        list.push('\'');
+        list.push('"');
         list.push_str(&t);
-        list.push('\'');
+        list.push('"');
         list.push(',');
     }
     if list.ends_with(',') {

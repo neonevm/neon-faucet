@@ -13,14 +13,14 @@ A client uses POST requests to send data to the server.
 Several endpoints are supported.
 
 |:-:|:-:|-
-|**Endpoint**|**Workload**|**Description**|
-|:-|:-:|-
-| request_ping | text | Requests ping to check availability of the service
-| request_version | | Requests version of the service
-| request_neon_in_galans | JSON | Requests NEON tokens, amount in galans (fractions)
-| request_neon | JSON | Requests NEON tokens
-| request_erc20_list | | Requests list of available ERC20 tokens
-| request_erc20 | JSON | Requests ERC20 tokens
+|**Endpoint**|**Method**|**Workload**|**Description**|
+|:-|:-:|:-:|-
+| request_ping | GET | text | Requests ping to check availability of the service
+| request_version | GET | | Requests version of the service
+| request_neon_in_galans | POST | JSON | Requests NEON tokens, amount in galans (fractions)
+| request_neon | POST | JSON | Requests NEON tokens
+| request_erc20_list | GET | | Requests list of available ERC20 tokens
+| request_erc20 | POST | JSON | Requests ERC20 tokens
 |-
 
 Examples of JSON workload:
@@ -33,12 +33,17 @@ Examples of JSON workload:
 
 Example of ping request with **curl** utility:
 ```
-curl -i -X POST -d 'Hello' 'http://localhost:3333/request_ping'
+curl -i -X GET -d 'Hello' 'http://localhost:3333/request_ping'
 ```
 
 Example of version request with **curl** utility:
 ```
-curl -i -X POST 'http://localhost:3333/request_version'
+curl -i -X GET 'http://localhost:3333/request_version'
+```
+
+Example of request of list of ERC20 with **curl** utility:
+```
+curl -i -X GET 'http://localhost:3333/request_erc20_list'
 ```
 
 Example of NEON drop request with **curl** utility:
