@@ -15,7 +15,7 @@ ENV FAUCET_REVISION=${REVISION}
 RUN cargo build --release
 
 FROM debian:11
-RUN apt update && apt install -y ca-certificates
+RUN apt update && apt install -y ca-certificates curl
 RUN mkdir -p /opt/faucet
 ADD internal/id.json /opt/faucet/
 RUN mkdir -p /root/.config/solana && ln -s /opt/faucet/id.json /root/.config/solana/id.json
