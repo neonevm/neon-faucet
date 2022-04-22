@@ -3,7 +3,7 @@ steps:
     command:
       - "./.buildkite/steps/build_image.sh"
       - "./.buildkite/steps/upload_image.sh"
-        
+
   - wait
 
   - label: ":floppy_disk: publish image"
