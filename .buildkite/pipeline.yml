@@ -3,9 +3,5 @@ steps:
     command:
       - "./.buildkite/steps/build_image.sh"
       - "./.buildkite/steps/upload_image.sh"
+      - "./.buildkite/steps/publish_image.sh"
 
-  - wait
-
-  - label: ":floppy_disk: publish image"
-    command: ".buildkite/steps/publish-image.sh"
-    branches: "master develop ci-* v*.*.*"
