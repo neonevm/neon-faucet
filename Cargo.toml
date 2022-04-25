@@ -3,13 +3,14 @@ name = "faucet"
 description = "NeonLabs Faucet Service"
 authors = ["NeonLabs Maintainers <maintainers@neonlabs.org>"]
 repository = "https://github.com/neonlabsorg/neon-faucet"
-version = "0.6.0-dev"
+version = "0.7.5-dev"
 edition = "2018"
 
 [dependencies]
 actix-cors = { version = "0.6", default-features = false }
 actix-web = { version = "4.0", default-features = false, features = ["macros"] }
 chrono = "0.4"
+clap = { version = "3.1", features = ["derive"] }
 derive-new = "0.5"
 ed25519-dalek = "1.0"
 eyre = "0.6"
@@ -30,7 +31,6 @@ solana-sdk = "=1.9.12"
 spl-associated-token-account = { version = "1.0", default_features = false, features = ["no-entrypoint"] }
 spl-memo = { version = "3.0", default_features = false, features = ["no-entrypoint"] }
 spl-token = { version = "3.2", default_features = false, features = ["no-entrypoint"] }
-structopt = "0.3"
 termimad = "0.20"
 thiserror = "1.0"
 time = { version = "0.3", default_features = false, features = ["macros"] }

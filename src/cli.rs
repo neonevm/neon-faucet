@@ -1,8 +1,8 @@
 //! Faucet options parser.
 
 use crate::{config, version};
+use clap::StructOpt;
 use std::path::PathBuf;
-use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(name = "faucet:", version = version::display!(), about = "NeonLabs Faucet Service")]
@@ -62,5 +62,5 @@ pub enum Command {
 
 /// Constructs instance of Application.
 pub fn application() -> Application {
-    Application::from_args()
+    Application::parse()
 }
