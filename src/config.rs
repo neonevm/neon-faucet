@@ -80,7 +80,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 const FAUCET_REVISION: &str = "FAUCET_REVISION";
 const FAUCET_RPC_BIND: &str = "FAUCET_RPC_BIND";
 const FAUCET_RPC_PORT: &str = "FAUCET_RPC_PORT";
-const FAUCET_RPC_ALLOWED_ORIGINS: &str = "FAUCET_RPC_ALLOWED_ORIGINS";
 const FAUCET_WEB3_ENABLE: &str = "FAUCET_WEB3_ENABLE";
 const WEB3_RPC_URL: &str = "WEB3_RPC_URL";
 const WEB3_PRIVATE_KEY: &str = "WEB3_PRIVATE_KEY";
@@ -105,7 +104,6 @@ static ENV: &[&str] = &[
     FAUCET_REVISION,
     FAUCET_RPC_BIND,
     FAUCET_RPC_PORT,
-    FAUCET_RPC_ALLOWED_ORIGINS,
     FAUCET_WEB3_ENABLE,
     WEB3_RPC_URL,
     WEB3_PRIVATE_KEY,
@@ -152,9 +150,6 @@ pub fn load(file: &Path) -> Result<()> {
                 FAUCET_REVISION => {}
                 FAUCET_RPC_BIND => CONFIG.write().unwrap().rpc.bind = val,
                 FAUCET_RPC_PORT => CONFIG.write().unwrap().rpc.port = val.parse::<u16>()?,
-                FAUCET_RPC_ALLOWED_ORIGINS => {
-                    CONFIG.write().unwrap().rpc.allowed_origins = parse_list_of_strings(&val)?
-                }
                 FAUCET_WEB3_ENABLE => CONFIG.write().unwrap().web3.enable = val.parse::<bool>()?,
                 WEB3_RPC_URL => CONFIG.write().unwrap().web3.rpc_url = val,
                 WEB3_PRIVATE_KEY => CONFIG.write().unwrap().web3.private_key = val,
@@ -206,11 +201,6 @@ pub fn rpc_bind() -> String {
 /// Gets the `rpc.port` value.
 pub fn rpc_port() -> u16 {
     CONFIG.read().unwrap().rpc.port
-}
-
-/// Gets the CORS `rpc.allowed_origins` urls.
-pub fn allowed_origins() -> Vec<String> {
-    CONFIG.read().unwrap().rpc.allowed_origins.clone()
 }
 
 /// Gets the `web3.enable` value.
@@ -327,7 +317,6 @@ pub fn solana_max_amount() -> u64 {
 struct Rpc {
     bind: String,
     port: u16,
-    allowed_origins: Vec<String>,
 }
 
 impl Rpc {
@@ -337,12 +326,6 @@ impl Rpc {
         }
         if self.port == 0 {
             return Err(Error::InvalidParameter("rpc.port".into(), "0".into()));
-        }
-        if self.allowed_origins.is_empty() {
-            return Err(Error::InvalidParameter(
-                "rpc.allowed_origins".into(),
-                "<empty>".into(),
-            ));
         }
         Ok(())
     }
@@ -358,15 +341,9 @@ impl std::fmt::Display for Rpc {
         }
         write!(f, "rpc.port = {}", self.port)?;
         if env::var(FAUCET_RPC_PORT).is_ok() {
-            writeln!(f, " (overridden by {})", FAUCET_RPC_PORT)?;
+            writeln!(f, " (overridden by {})", FAUCET_RPC_PORT)
         } else {
-            writeln!(f)?;
-        }
-        write!(f, "rpc.allowed_origins = {:?}", self.allowed_origins)?;
-        if env::var(FAUCET_RPC_ALLOWED_ORIGINS).is_ok() {
-            write!(f, " (overridden by {})", FAUCET_RPC_ALLOWED_ORIGINS)
-        } else {
-            write!(f, "")
+            writeln!(f)
         }
     }
 }
