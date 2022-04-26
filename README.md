@@ -64,6 +64,7 @@ The configuration file should be in TOML format.
 |:-|-
 | **rpc**.bind | Local interface TCP address
 | **rpc**.port | TCP port to listen
+| **rpc**.allowed_origins | List of client URLs that can send requests
 | **web3**.enable | Flag to on/off the entire **web3** section
 | **web3**.rpc_url | Ethereum network endpoint
 | **web3**.private_key | Ethereum private key to support operations
@@ -81,6 +82,7 @@ Example of the configuration file contents:
 [rpc]
 bind = "0.0.0.0"
 port = 3333
+allowed_origins = ["http://localhost"]
 
 [web3]
 enable = true
@@ -111,6 +113,7 @@ Environment variables, if present, override portions of the configuration.
 |:-|:-|-
 | FAUCET_RPC_BIND | **rpc**.bind | `0.0.0.0`
 | FAUCET_RPC_PORT | **rpc**.port | `3333`
+| FAUCET_RPC_ALLOWED_ORIGINS | **rpc**.allowed_origins | `["http://localhost"]`
 | FAUCET_WEB3_ENABLE | **web3**.enable | `true`
 | WEB3_RPC_URL | **web3**.rpc_url | `http://localhost:9090/solana`
 | WEB3_PRIVATE_KEY | **web3**.private_key | `0x00A`

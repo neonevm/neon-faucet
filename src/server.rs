@@ -1,6 +1,7 @@
 //! Faucet server implementation.
 
-use actix_web::http::StatusCode;
+use actix_cors::Cors;
+use actix_web::http::{header, StatusCode};
 use actix_web::web::{get, post, Bytes};
 use actix_web::{App, HttpResponse, HttpServer, Responder};
 use eyre::Result;
@@ -13,7 +14,15 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
     info!("{} Bind {}:{}", id::default(), rpc_bind, rpc_port);
 
     HttpServer::new(|| {
+        let mut cors = Cors::default()
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_header(header::CONTENT_TYPE)
+            .max_age(3600);
+        for origin in &config::allowed_origins() {
+            cors = cors.allowed_origin(origin);
+        }
         App::new()
+            .wrap(cors)
             .route("/request_ping", get().to(handle_request_ping))
             .route("/request_version", get().to(handle_request_version))
             .route(
