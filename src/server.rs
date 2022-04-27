@@ -14,13 +14,18 @@ pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> 
     info!("{} Bind {}:{}", id::default(), rpc_bind, rpc_port);
 
     HttpServer::new(|| {
-        let mut cors = Cors::default()
-            .allowed_methods(vec!["GET", "POST"])
-            .allowed_header(header::CONTENT_TYPE)
-            .max_age(3600);
-        for origin in &config::allowed_origins() {
-            cors = cors.allowed_origin(origin);
+        let mut cors = Cors::default();
+        let allowed_origins = config::allowed_origins();
+        if !allowed_origins.is_empty() {
+            cors = cors
+                .allowed_methods(vec!["GET", "POST"])
+                .allowed_header(header::CONTENT_TYPE)
+                .max_age(3600);
+            for origin in &allowed_origins {
+                cors = cors.allowed_origin(origin);
+            }
         }
+
         App::new()
             .wrap(cors)
             .route("/request_ping", get().to(handle_request_ping))
