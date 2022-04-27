@@ -112,7 +112,7 @@ async fn run(config_file: &Path, workers: usize) -> Result<()> {
     config::load(config_file)?;
 
     if config::web3_enabled() || config::solana_enabled() {
-        server::start(&config::rpc_bind(), config::rpc_port(), workers).await?;
+        server::start(workers).await?;
     }
 
     Ok(())

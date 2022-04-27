@@ -10,7 +10,9 @@ use tracing::{error, info};
 use crate::{active_requests, config, erc20_tokens, id, neon_token};
 
 /// Starts the server in listening mode.
-pub async fn start(rpc_bind: &str, rpc_port: u16, workers: usize) -> Result<()> {
+pub async fn start(workers: usize) -> Result<()> {
+    let rpc_bind = config::rpc_bind();
+    let rpc_port = config::rpc_port();
     info!("{} Bind {}:{}", id::default(), rpc_bind, rpc_port);
 
     HttpServer::new(|| {
