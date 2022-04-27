@@ -338,12 +338,6 @@ impl Rpc {
         if self.port == 0 {
             return Err(Error::InvalidParameter("rpc.port".into(), "0".into()));
         }
-        if self.allowed_origins.is_empty() {
-            return Err(Error::InvalidParameter(
-                "rpc.allowed_origins".into(),
-                "<empty>".into(),
-            ));
-        }
         Ok(())
     }
 }
