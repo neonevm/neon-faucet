@@ -1,10 +1,8 @@
 //! Faucet ERC20 tokens module.
 
-use derive_new::new;
 use eyre::{eyre, Result};
 use tracing::{debug, error, info};
 
-use futures_locks::RwLock;
 use secp256k1::SecretKey;
 use web3::api::Eth;
 use web3::contract::{Contract, Options};
@@ -183,6 +181,9 @@ async fn multiplication_factor(token_address: &str) -> Result<u64> {
         .ok_or_else(|| eyre!("Token {} overflow 10^{}", token_address, decimals))?;
     Ok(factor)
 }
+
+use derive_new::new;
+use futures_locks::RwLock;
 
 #[derive(new, Debug, Default, Clone)]
 struct Token {
