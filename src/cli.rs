@@ -22,19 +22,19 @@ pub struct Application {
 
 #[derive(StructOpt)]
 pub enum Command {
-    #[structopt(about = "Shows manual(s)")]
+    #[structopt(about = "Show manual(s)")]
     Man {
-        #[structopt(long, help = "Shows HTTP API manual")]
+        #[structopt(long, help = "Show HTTP API manual")]
         api: bool,
-        #[structopt(long, help = "Shows configuration file manual")]
+        #[structopt(long, help = "Show configuration file manual")]
         config: bool,
-        #[structopt(long, help = "Shows environment variables manual")]
+        #[structopt(long, help = "Show environment variables manual")]
         env: bool,
-        #[structopt(long, help = "Dumps manual in Markdown format")]
+        #[structopt(long, help = "Dump manual in Markdown format")]
         raw: bool,
     },
 
-    #[structopt(about = "Shows config")]
+    #[structopt(about = "Show config")]
     Config {
         #[structopt(
             parse(from_os_str),
@@ -46,10 +46,10 @@ pub enum Command {
         file: PathBuf,
     },
 
-    #[structopt(about = "Shows environment variables")]
+    #[structopt(about = "Show environment variables")]
     Env {},
 
-    #[structopt(about = "Starts listening for requests")]
+    #[structopt(about = "Start listening for requests")]
     Run {
         #[structopt(
             long,
