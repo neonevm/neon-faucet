@@ -613,7 +613,7 @@ fn obfuscate_string(key: &str) -> String {
     if len <= prefix_len + suffix_len {
         key.into()
     } else {
-        format!("{}•••{}", &key[..prefix_len], &key[len - suffix_len..])
+        format!("{}...{}", &key[..prefix_len], &key[len - suffix_len..])
     }
 }
 
@@ -626,7 +626,7 @@ fn obfuscate_solana_private_key(key: &str) -> String {
         key.into()
     } else {
         format!(
-            "{},{},{},{}•••{},{},{},{}",
+            "{},{},{},{}...{},{},{},{}",
             ss[0],
             ss[1],
             ss[2],
@@ -644,14 +644,14 @@ fn test_obfuscate() {
     let s = obfuscate_string("123");
     assert_eq!(s, "123");
     let s = obfuscate_string("123456789");
-    assert_eq!(s, "1234•••6789");
+    assert_eq!(s, "1234...6789");
     let s = obfuscate_string("0x123456789");
-    assert_eq!(s, "0x1234•••6789");
+    assert_eq!(s, "0x1234...6789");
 
     let s = obfuscate_list_of_strings(&vec!["AAA".to_string(), "BBB".to_string()]);
     assert_eq!(s, vec!["AAA", "BBB"]);
     let s = obfuscate_list_of_strings(&vec!["CCCCCCCCC".to_string(), "DDDDDDDDD".to_string()]);
-    assert_eq!(s, vec!["CCCC•••CCCC", "DDDD•••DDDD"]);
+    assert_eq!(s, vec!["CCCC...CCCC", "DDDD...DDDD"]);
 
     let s = obfuscate_solana_private_key("123");
     assert_eq!(s, "123");
@@ -660,7 +660,7 @@ fn test_obfuscate() {
     let s = obfuscate_solana_private_key("1,2,3,4,5,6,7,8");
     assert_eq!(s, "1,2,3,4,5,6,7,8");
     let s = obfuscate_solana_private_key("1,2,3,4,5,6,7,8,9");
-    assert_eq!(s, "1,2,3,4•••6,7,8,9");
+    assert_eq!(s, "1,2,3,4...6,7,8,9");
 }
 
 /// Parses `s` as string representing bracketed list of quoted strings.

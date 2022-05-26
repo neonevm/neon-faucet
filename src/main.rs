@@ -110,6 +110,7 @@ use std::path::Path;
 async fn run(config_file: &Path, workers: usize) -> Result<()> {
     config::check_file_exists(config_file);
     config::load(config_file)?;
+    config::show();
 
     if config::web3_enabled() || config::solana_enabled() {
         server::start(workers).await?;
