@@ -198,7 +198,7 @@ fn create_ether_account_instruction(
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(24_u8, ether_address.as_fixed_bytes(), nonce),
+        &(30_u8, ether_address.as_fixed_bytes(), nonce, 0_u32),
         vec![
             AccountMeta::new(signer_pubkey, true),
             AccountMeta::new_readonly(system_program::id(), false),
