@@ -198,7 +198,7 @@ fn create_ether_account_instruction(
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(30_u8, ether_address.as_fixed_bytes(), nonce, 0_u32),
+        &(0x1e_u8, ether_address.as_fixed_bytes(), nonce, 0_u32),
         vec![
             AccountMeta::new(signer_pubkey, true),
             AccountMeta::new_readonly(system_program::id(), false),
@@ -259,7 +259,7 @@ fn deposit_instruction(
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(25_u8), // Index of the Deposit instruction in EVM Loader
+        &(0x19_u8), // Index of the Deposit instruction in EVM Loader
         vec![
             AccountMeta::new(source_pubkey, false),
             AccountMeta::new(destination_pubkey, false),
