@@ -24,7 +24,7 @@ pub struct Airdrop {
 }
 
 /// Processes the airdrop: sends needed transactions into Ethereum.
-pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
+pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<String> {
     info!("{} Processing ERC20 {:?}...", id, params);
 
     let mut known_tokens = config::tokens();
@@ -79,7 +79,7 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
         })?;
     }
 
-    Ok(())
+    Ok(String::default())
 }
 
 /// Initializes local cache of tokens properties.

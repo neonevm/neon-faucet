@@ -18,7 +18,7 @@ pub struct Airdrop {
 }
 
 /// Processes the airdrop: sends needed transactions into Solana.
-pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
+pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<String> {
     info!("{} Processing NEON {:?}...", id, params);
 
     if config::solana_account_seed_version() == 0 {
@@ -59,7 +59,8 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
             e
         )
     })?;
-    Ok(())
+
+    Ok(String::default())
 }
 
 /// Checks existence and balance of the operator's token account.
