@@ -108,7 +108,7 @@ async fn handle_request_neon_in_galans(body: Bytes) -> impl Responder {
 
     let mut airdrop = airdrop.unwrap();
     airdrop.in_fractions = true;
-    let r = neon_token::airdrop(&id, airdrop).await;
+    let r = neon_token::do_airdrop(&id, airdrop).await;
     if let Err(err) = r {
         error!("{} InternalServerError: {}", id, err);
         return HttpResponse::with_body(StatusCode::INTERNAL_SERVER_ERROR, err.to_string());
@@ -139,7 +139,7 @@ async fn handle_request_neon(body: Bytes) -> impl Responder {
         return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
-    let r = neon_token::airdrop(&id, airdrop.unwrap()).await;
+    let r = neon_token::do_airdrop(&id, airdrop.unwrap()).await;
     if let Err(err) = r {
         error!("{} InternalServerError: {}", id, err);
         return HttpResponse::with_body(StatusCode::INTERNAL_SERVER_ERROR, err.to_string());
@@ -194,7 +194,7 @@ async fn handle_request_erc20(body: Bytes) -> impl Responder {
         return HttpResponse::with_body(StatusCode::BAD_REQUEST, err.to_string());
     }
 
-    let r = erc20_tokens::airdrop(&id, airdrop.unwrap()).await;
+    let r = erc20_tokens::do_airdrop(&id, airdrop.unwrap()).await;
     if let Err(err) = r {
         error!("{} InternalServerError: {}", id, err);
         return HttpResponse::with_body(StatusCode::INTERNAL_SERVER_ERROR, err.to_string());
