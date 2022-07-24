@@ -6,14 +6,17 @@ use eyre::{eyre, Result, WrapErr as _};
 use tracing::{debug, warn};
 
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::compute_budget::ComputeBudgetInstruction;
-use solana_sdk::instruction::{AccountMeta, Instruction};
-use solana_sdk::message::Message;
-use solana_sdk::pubkey::Pubkey;
-use solana_sdk::signature::Signer as _;
-use solana_sdk::signer::keypair::Keypair;
-use solana_sdk::system_program;
-use solana_sdk::transaction::Transaction;
+
+use solana_sdk::{
+    compute_budget::ComputeBudgetInstruction,
+    instruction::{AccountMeta, Instruction},
+    message::Message,
+    pubkey::Pubkey,
+    signature::{Signature, Signer as _},
+    signer::keypair::Keypair,
+    system_program,
+    transaction::Transaction,
+};
 
 use crate::config;
 use crate::{ethereum, id::ReqId};
@@ -32,13 +35,14 @@ pub fn convert_whole_to_fractions(amount: u64) -> Result<u64> {
 /// Deposits `amount` of tokens from main account to associated account.
 /// When `in_fractions` == false, amount is treated as whole token amount.
 /// When `in_fractions` == true, amount is treated as amount in galans (10E-9).
+/// Returns id of new transaction.
 pub async fn deposit_token(
     id: &ReqId,
     signer: Keypair,
     ether_address: ethereum::Address,
     amount: u64,
     in_fractions: bool,
-) -> Result<()> {
+) -> Result<String> {
     let evm_loader_id = Pubkey::from_str(&config::solana_evm_loader()).wrap_err_with(|| {
         eyre!(
             "config::solana_evm_loader returns {}",
@@ -65,7 +69,7 @@ pub async fn deposit_token(
     let ether_pubkey = ether_address_to_solana_pubkey(&ether_address, &evm_loader_id).0;
 
     let id = id.to_owned();
-    tokio::task::spawn_blocking(move || -> Result<()> {
+    let signature = tokio::task::spawn_blocking(move || -> Result<Signature> {
         let client =
             RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment());
         let mut instructions = Vec::with_capacity(6);
@@ -122,12 +126,14 @@ pub async fn deposit_token(
         debug!("{} Signing transaction...", id);
         tx.try_sign(&[&signer], blockhash)?;
         debug!("{} Sending and confirming transaction...", id);
-        client.send_and_confirm_transaction(&tx)?;
+        let signature = client.send_and_confirm_transaction(&tx)?;
         debug!("{} Transaction is confirmed", id);
 
-        Ok(())
+        Ok(signature)
     })
-    .await?
+    .await??;
+
+    Ok(signature.to_string())
 }
 
 /// Maps an Ethereum address into a Solana address.

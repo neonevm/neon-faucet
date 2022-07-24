@@ -1,23 +1,28 @@
 //! Faucet config module.
 
-use std::collections::HashMap;
-use std::convert::TryFrom as _;
-use std::env;
-use std::path::{Path, PathBuf};
-use std::str::FromStr as _;
-use std::sync::RwLock;
+use std::{
+    collections::HashMap,
+    convert::TryFrom as _,
+    env,
+    path::{Path, PathBuf},
+    str::FromStr as _,
+    sync::RwLock,
+};
 
 use serde::{Deserialize, Serialize};
 
 use tracing::{error, warn};
 
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::account_utils::StateMut;
-use solana_sdk::bpf_loader_upgradeable::{self, UpgradeableLoaderState};
-use solana_sdk::commitment_config::CommitmentConfig;
-use solana_sdk::pubkey::Pubkey;
-use solana_sdk::signer::keypair::Keypair;
-use solana_sdk::{bpf_loader, bpf_loader_deprecated};
+
+use solana_sdk::{
+    account_utils::StateMut,
+    bpf_loader_upgradeable::{self, UpgradeableLoaderState},
+    commitment_config::CommitmentConfig,
+    pubkey::Pubkey,
+    signer::keypair::Keypair,
+    {bpf_loader, bpf_loader_deprecated},
+};
 
 use crate::{ethereum, id};
 

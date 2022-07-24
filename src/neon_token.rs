@@ -44,7 +44,7 @@ pub async fn do_airdrop(id: &ReqId, params: Airdrop) -> Result<String> {
         .map_err(|e| eyre!("config::solana_operator_keypair: {:?}", e))?;
     let ether_address = ethereum::address_from_str(&params.wallet)
         .map_err(|e| eyre!("ethereum::address_from_str({}): {:?}", &params.wallet, e))?;
-    solana::deposit_token(
+    let tx_id = solana::deposit_token(
         id,
         operator,
         ether_address,
@@ -60,7 +60,7 @@ pub async fn do_airdrop(id: &ReqId, params: Airdrop) -> Result<String> {
         )
     })?;
 
-    Ok(String::default())
+    Ok(tx_id)
 }
 
 /// Checks existence and balance of the operator's token account.

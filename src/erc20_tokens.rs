@@ -4,11 +4,14 @@ use eyre::{eyre, Result};
 use tracing::{debug, error, info};
 
 use secp256k1::SecretKey;
-use web3::api::Eth;
-use web3::contract::{Contract, Options};
-use web3::signing::Key;
-use web3::types::U256;
-use web3::Transport;
+
+use web3::{
+    api::Eth,
+    contract::{Contract, Options},
+    signing::Key,
+    types::U256,
+    Transport,
+};
 
 use crate::{config, ethereum, id::ReqId};
 

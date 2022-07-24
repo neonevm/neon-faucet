@@ -1,9 +1,11 @@
 //! Faucet server implementation.
 
 use actix_cors::Cors;
-use actix_web::http::{header, StatusCode};
-use actix_web::web::{get, post, Bytes};
-use actix_web::{App, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    http::{header, StatusCode},
+    web::{get, post, Bytes},
+    App, HttpResponse, HttpServer, Responder,
+};
 use eyre::Result;
 use tracing::{error, info};
 
