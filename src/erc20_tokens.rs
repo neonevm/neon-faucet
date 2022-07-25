@@ -9,7 +9,7 @@ use web3::{
     api::Eth,
     contract::{Contract, Options},
     signing::Key,
-    types::U256,
+    types::{H256, U256},
     Transport,
 };
 
@@ -66,7 +66,8 @@ pub async fn do_airdrop(id: &ReqId, params: Airdrop) -> Result<String> {
         let internal_amount = amount
             .checked_mul(factor)
             .ok_or_else(|| eyre!("Overflow {} * {}", amount, factor))?;
-        transfer(
+
+        let _tx_hash = transfer(
             id,
             web3.eth(),
             ethereum::address_from_str(token)?,
@@ -110,7 +111,7 @@ async fn transfer<T: Transport>(
     admin_key: impl Key + std::fmt::Debug,
     recipient: ethereum::Address,
     amount: U256,
-) -> web3::contract::Result<()> {
+) -> web3::contract::Result<H256> {
     info!(
         "{} Transfer {} of token {} -> {}",
         id, amount, token_name, recipient
@@ -129,7 +130,7 @@ async fn transfer<T: Transport>(
         gas: Some(U256::from(10_000_000)),
         ..Default::default()
     };
-    token
+    let r = token
         .signed_call_with_confirmations(
             "transfer",
             (recipient, amount),
@@ -144,7 +145,7 @@ async fn transfer<T: Transport>(
         })?;
 
     info!("{} OK", id);
-    Ok(())
+    Ok(r.transaction_hash)
 }
 
 async fn get_decimals<T: Transport>(

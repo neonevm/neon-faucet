@@ -42,7 +42,7 @@ pub async fn deposit_token(
     ether_address: ethereum::Address,
     amount: u64,
     in_fractions: bool,
-) -> Result<String> {
+) -> Result<Signature> {
     let evm_loader_id = Pubkey::from_str(&config::solana_evm_loader()).wrap_err_with(|| {
         eyre!(
             "config::solana_evm_loader returns {}",
@@ -133,7 +133,7 @@ pub async fn deposit_token(
     })
     .await??;
 
-    Ok(signature.to_string())
+    Ok(signature)
 }
 
 /// Maps an Ethereum address into a Solana address.
