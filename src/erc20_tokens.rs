@@ -131,7 +131,7 @@ async fn transfer<T: Transport>(
             "transfer",
             (recipient, amount),
             options,
-            0, // confirmations
+            10, // confirmations
             admin_key,
         )
         .await
