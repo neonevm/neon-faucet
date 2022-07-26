@@ -27,7 +27,7 @@ pub struct Airdrop {
 pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
     info!("{} Processing ERC20 {:?}...", id, params);
 
-    let mut known_tokens = config::tokens();
+    let mut known_tokens = config::web3_tokens();
 
     if let Some(ref token_addr) = params.token_addr {
         if !known_tokens.contains(token_addr) {
@@ -131,7 +131,7 @@ async fn transfer<T: Transport>(
             "transfer",
             (recipient, amount),
             options,
-            10, // confirmations
+            config::web3_confirmations(),
             admin_key,
         )
         .await

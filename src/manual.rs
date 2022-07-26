@@ -77,6 +77,7 @@ The configuration file should be in TOML format.
 | **rpc**.allowed_origins | List of client URLs that can send requests
 | **web3**.enable | Flag to on/off the entire **web3** section
 | **web3**.rpc_url | Ethereum network endpoint
+| **web3**.confirmations | Maximum of attempts to get confirmation from a node
 | **web3**.private_key | Ethereum private key to support operations
 | **web3**.tokens | List of available ERC20 token addresses
 | **web3**.max_amount | Largest amount of ERC20 tokens to distribute with a single request
@@ -98,6 +99,7 @@ allowed_origins = ["http://localhost"]
 [web3]
 enable = true
 rpc_url = "http://localhost:9090/solana"
+confirmations = 10
 private_key = "0x0000000000000000000000000000000000000000000000000000000000000Ace"
 tokens = ["0x00000000000000000000000000000000CafeBabe",
           "0x00000000000000000000000000000000DeadBeef"]
@@ -129,6 +131,7 @@ Environment variables, if present, override portions of the configuration.
 | FAUCET_RPC_ALLOWED_ORIGINS | **rpc**.allowed_origins | `["http://localhost"]`
 | FAUCET_WEB3_ENABLE | **web3**.enable | `true`
 | WEB3_RPC_URL | **web3**.rpc_url | `http://localhost:9090/solana`
+| WEB3_CONFIRMATIONS | **web3**.confirmations | `10`
 | WEB3_PRIVATE_KEY | **web3**.private_key | `0x00A`
 | NEON_ERC20_TOKENS | **web3**.tokens | `["0x00B", "0x00C"]`
 | NEON_ERC20_MAX_AMOUNT | **web3**.max_amount | `1000`

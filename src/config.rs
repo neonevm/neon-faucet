@@ -83,6 +83,7 @@ const FAUCET_RPC_PORT: &str = "FAUCET_RPC_PORT";
 const FAUCET_RPC_ALLOWED_ORIGINS: &str = "FAUCET_RPC_ALLOWED_ORIGINS";
 const FAUCET_WEB3_ENABLE: &str = "FAUCET_WEB3_ENABLE";
 const WEB3_RPC_URL: &str = "WEB3_RPC_URL";
+const WEB3_CONFIRMATIONS: &str = "WEB3_CONFIRMATIONS";
 const WEB3_PRIVATE_KEY: &str = "WEB3_PRIVATE_KEY";
 const NEON_ERC20_TOKENS: &str = "NEON_ERC20_TOKENS";
 const NEON_ERC20_MAX_AMOUNT: &str = "NEON_ERC20_MAX_AMOUNT";
@@ -108,6 +109,7 @@ static ENV: &[&str] = &[
     FAUCET_RPC_ALLOWED_ORIGINS,
     FAUCET_WEB3_ENABLE,
     WEB3_RPC_URL,
+    WEB3_CONFIRMATIONS,
     WEB3_PRIVATE_KEY,
     NEON_ERC20_TOKENS,
     NEON_ERC20_MAX_AMOUNT,
@@ -147,34 +149,39 @@ pub fn load(file: &Path) -> Result<()> {
     }
 
     for e in ENV {
-        if let Ok(val) = env::var(e) {
+        if let Ok(str_val) = env::var(e) {
             match *e {
                 FAUCET_REVISION => {}
-                FAUCET_RPC_BIND => CONFIG.write().unwrap().rpc.bind = val,
-                FAUCET_RPC_PORT => CONFIG.write().unwrap().rpc.port = val.parse::<u16>()?,
+                FAUCET_RPC_BIND => CONFIG.write().unwrap().rpc.bind = str_val,
+                FAUCET_RPC_PORT => CONFIG.write().unwrap().rpc.port = str_val.parse::<u16>()?,
                 FAUCET_RPC_ALLOWED_ORIGINS => {
-                    CONFIG.write().unwrap().rpc.allowed_origins = parse_list_of_strings(&val)?
+                    CONFIG.write().unwrap().rpc.allowed_origins = parse_list_of_strings(&str_val)?
                 }
-                FAUCET_WEB3_ENABLE => CONFIG.write().unwrap().web3.enable = val.parse::<bool>()?,
-                WEB3_RPC_URL => CONFIG.write().unwrap().web3.rpc_url = val,
-                WEB3_PRIVATE_KEY => CONFIG.write().unwrap().web3.private_key = val,
+                FAUCET_WEB3_ENABLE => {
+                    CONFIG.write().unwrap().web3.enable = str_val.parse::<bool>()?
+                }
+                WEB3_RPC_URL => CONFIG.write().unwrap().web3.rpc_url = str_val,
+                WEB3_CONFIRMATIONS => {
+                    CONFIG.write().unwrap().web3.confirmations = str_val.parse::<usize>()?
+                }
+                WEB3_PRIVATE_KEY => CONFIG.write().unwrap().web3.private_key = str_val,
                 NEON_ERC20_TOKENS => {
-                    CONFIG.write().unwrap().web3.tokens = parse_list_of_strings(&val)?
+                    CONFIG.write().unwrap().web3.tokens = parse_list_of_strings(&str_val)?
                 }
                 NEON_ERC20_MAX_AMOUNT => {
-                    CONFIG.write().unwrap().web3.max_amount = val.parse::<u64>()?
+                    CONFIG.write().unwrap().web3.max_amount = str_val.parse::<u64>()?
                 }
                 FAUCET_SOLANA_ENABLE => {
-                    CONFIG.write().unwrap().solana.enable = val.parse::<bool>()?
+                    CONFIG.write().unwrap().solana.enable = str_val.parse::<bool>()?
                 }
-                SOLANA_URL => CONFIG.write().unwrap().solana.url = val,
-                SOLANA_COMMITMENT => CONFIG.write().unwrap().solana.commitment = val,
-                EVM_LOADER => CONFIG.write().unwrap().solana.evm_loader = val,
+                SOLANA_URL => CONFIG.write().unwrap().solana.url = str_val,
+                SOLANA_COMMITMENT => CONFIG.write().unwrap().solana.commitment = str_val,
+                EVM_LOADER => CONFIG.write().unwrap().solana.evm_loader = str_val,
                 NEON_OPERATOR_KEYFILE => {
-                    CONFIG.write().unwrap().solana.operator_keyfile = val.into()
+                    CONFIG.write().unwrap().solana.operator_keyfile = str_val.into()
                 }
                 NEON_ETH_MAX_AMOUNT => {
-                    CONFIG.write().unwrap().solana.max_amount = val.parse::<u64>()?
+                    CONFIG.write().unwrap().solana.max_amount = str_val.parse::<u64>()?
                 }
                 NEON_LOG => {}
                 RUST_LOG => {}
@@ -223,6 +230,11 @@ pub fn web3_rpc_url() -> String {
     CONFIG.read().unwrap().web3.rpc_url.clone()
 }
 
+/// Gets the `web3.confirmations` value.
+pub fn web3_confirmations() -> usize {
+    CONFIG.read().unwrap().web3.confirmations
+}
+
 /// Gets the `web3.private_key` value. Removes prefix 0x if any.
 pub fn web3_private_key() -> String {
     let key = &CONFIG.read().unwrap().web3.private_key;
@@ -230,7 +242,7 @@ pub fn web3_private_key() -> String {
 }
 
 /// Gets the `web3.tokens` addresses.
-pub fn tokens() -> Vec<String> {
+pub fn web3_tokens() -> Vec<String> {
     CONFIG.read().unwrap().web3.tokens.clone()
 }
 
@@ -371,6 +383,7 @@ impl std::fmt::Display for Rpc {
 struct Web3 {
     enable: bool,
     rpc_url: String,
+    confirmations: usize,
     private_key: String,
     tokens: Vec<String>,
     max_amount: u64,
@@ -423,6 +436,12 @@ impl std::fmt::Display for Web3 {
         write!(f, "web3.rpc_url = \"{}\"", self.rpc_url)?;
         if env::var(WEB3_RPC_URL).is_ok() {
             writeln!(f, " (overridden by {})", WEB3_RPC_URL)?;
+        } else {
+            writeln!(f)?;
+        }
+        write!(f, "web3.confirmations = {}", self.confirmations)?;
+        if env::var(WEB3_CONFIRMATIONS).is_ok() {
+            writeln!(f, " (overridden by {})", WEB3_CONFIRMATIONS)?;
         } else {
             writeln!(f)?;
         }

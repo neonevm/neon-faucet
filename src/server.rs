@@ -156,7 +156,7 @@ async fn handle_request_erc20_list() -> impl Responder {
     info!("{} Active requests: {}", id, counter);
 
     let mut list = String::from("[");
-    for t in config::tokens() {
+    for t in config::web3_tokens() {
         list.push('"');
         list.push_str(&t);
         list.push('"');
