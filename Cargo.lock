@@ -4441,8 +4441,6 @@ dependencies = [
 [[package]]
 name = "web3"
 version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44f258e254752d210b84fe117b31f1e3cc9cbf04c0d747eb7f8cf7cf5e370f6d"
 dependencies = [
  "arrayvec",
  "base64 0.13.0",
