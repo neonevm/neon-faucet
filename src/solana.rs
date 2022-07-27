@@ -74,16 +74,6 @@ pub async fn deposit_token(
         instructions.push(compute_budget_instruction_request_units(&id));
         instructions.push(compute_budget_instruction_request_heap_frame(&id));
 
-        let ether_account = client.get_account(&ether_pubkey);
-        if ether_account.is_err() {
-            instructions.push(create_ether_account_instruction(
-                &id,
-                evm_loader_id,
-                signer_pubkey,
-                ether_address,
-            ));
-        }
-
         let amount = if in_fractions {
             amount
         } else {
@@ -101,12 +91,14 @@ pub async fn deposit_token(
 
         instructions.push(deposit_instruction(
             &id,
+            ether_address,
             signer_token_pubkey,
             evm_pool_pubkey,
             ether_pubkey,
             evm_token_authority,
             evm_loader_id,
             spl_token::id(),
+            signer_pubkey,
         ));
 
         debug!(
@@ -181,32 +173,6 @@ fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
     ComputeBudgetInstruction::request_heap_frame(hf)
 }
 
-/// Returns instruction for creation of account.
-fn create_ether_account_instruction(
-    id: &ReqId,
-    evm_loader_id: Pubkey,
-    signer_pubkey: Pubkey,
-    ether_address: ethereum::Address,
-) -> Instruction {
-    debug!("{} Instruction: CreateAccount", id);
-    let (solana_address, nonce) = ether_address_to_solana_pubkey(&ether_address, &evm_loader_id);
-
-    debug!("{} evm_loader_id {}", id, evm_loader_id);
-    debug!("{} signer_pubkey {}", id, signer_pubkey);
-    debug!("{} ether_address {}", id, ether_address);
-    debug!("{} solana_address {}", id, solana_address);
-
-    Instruction::new_with_bincode(
-        evm_loader_id,
-        &(0x1e_u8, ether_address.as_fixed_bytes(), nonce, 0_u32),
-        vec![
-            AccountMeta::new(signer_pubkey, true),
-            AccountMeta::new_readonly(system_program::id(), false),
-            AccountMeta::new(solana_address, false),
-        ],
-    )
-}
-
 /// Returns instruction to approve transfer of NEON tokens.
 fn spl_approve_instruction(
     id: &ReqId,
@@ -243,12 +209,14 @@ fn spl_approve_instruction(
 /// Returns instruction to deposit NEON tokens.
 fn deposit_instruction(
     id: &ReqId,
+    ether_address: ethereum::Address,
     source_pubkey: Pubkey,
     destination_pubkey: Pubkey,
     ether_account_pubkey: Pubkey,
     evm_token_authority: Pubkey,
     evm_loader_id: Pubkey,
     spl_token_id: Pubkey,
+    signer_pubkey: Pubkey,
 ) -> Instruction {
     debug!("{} Instruction: Deposit", id);
 
@@ -259,13 +227,15 @@ fn deposit_instruction(
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(0x19_u8), // Index of the Deposit instruction in EVM Loader
+        &(0x1e_u8, ether_address.as_fixed_bytes()),
         vec![
             AccountMeta::new(source_pubkey, false),
             AccountMeta::new(destination_pubkey, false),
             AccountMeta::new(ether_account_pubkey, false),
             AccountMeta::new_readonly(evm_token_authority, false),
             AccountMeta::new_readonly(spl_token_id, false),
+            AccountMeta::new(signer_pubkey, true),
+            AccountMeta::new_readonly(system_program::id(), false),
         ],
     )
 }
