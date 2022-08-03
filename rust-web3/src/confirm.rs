@@ -91,7 +91,7 @@ async fn send_transaction_with_confirmation_<T: Transport>(
             tokio::time::sleep(Duration::from_millis(delay_millis)).await;
         }
         if let Some(receipt) = eth.transaction_receipt(hash).await? {
-            log::info!("Got receipt after {} attempts with delays {}ms", i + 1, delay_millis);
+            log::info!("Got receipt after {} waits {}ms", i + 1, delay_millis);
             return Ok(receipt);
         }
     }
