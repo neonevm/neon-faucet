@@ -75,18 +75,29 @@ async fn send_transaction_with_confirmation_<T: Transport>(
     confirmations: usize,
 ) -> error::Result<TransactionReceipt> {
     let eth = Eth::new(transport.clone());
+
     if confirmations > 0 {
         let confirmation_check = || transaction_receipt_block_number_check(&eth, hash);
         let eth_filter = EthFilter::new(transport.clone());
         let eth = eth.clone();
         wait_for_confirmations(eth, eth_filter, poll_interval, confirmations, confirmation_check).await?;
     }
-    // TODO #397: We should remove this `expect`. No matter what happens inside the node, this shouldn't be a panic.
-    let receipt = eth
-        .transaction_receipt(hash)
-        .await?
-        .expect("receipt can't be null after wait for confirmations; qed");
-    Ok(receipt)
+
+    let delay = std::env::var("FAUCET_DELAY_BEFORE_GET_RECEIPT_MILLIS").unwrap_or("0".into());
+    let delay = delay.parse::<u64>().unwrap_or(0);
+    if delay != 0 {
+        println!("Sleeping {} millis", delay);
+        tokio::time::sleep(Duration::from_millis(delay)).await;
+    }
+
+    let receipt = eth.transaction_receipt(hash).await?;
+    if receipt.is_none() {
+        return Err(crate::Error::InvalidResponse(
+            "receipt can't be null after wait for confirmations; qed".into(),
+        ));
+    }
+
+    Ok(receipt.unwrap())
 }
 
 /// Sends transaction and returns future resolved after transaction is confirmed
