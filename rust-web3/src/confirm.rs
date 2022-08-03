@@ -86,7 +86,6 @@ async fn send_transaction_with_confirmation_<T: Transport>(
     let delay = std::env::var("FAUCET_DELAY_BEFORE_GET_RECEIPT_MILLIS").unwrap_or("0".into());
     let delay = delay.parse::<u64>().unwrap_or(0);
     if delay != 0 {
-        println!("Sleeping {} millis", delay);
         tokio::time::sleep(Duration::from_millis(delay)).await;
     }
 
