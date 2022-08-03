@@ -3,8 +3,8 @@ name = "faucet"
 description = "NeonLabs Faucet Service"
 authors = ["NeonLabs Maintainers <maintainers@neonlabs.org>"]
 repository = "https://github.com/neonlabsorg/neon-faucet"
-version = "0.7.6-dev"
-edition = "2018"
+version = "0.10.0-dev"
+edition = "2021"
 
 [dependencies]
 actix-cors = { version = "0.6", default-features = false }
