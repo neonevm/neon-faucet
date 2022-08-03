@@ -83,24 +83,22 @@ async fn send_transaction_with_confirmation_<T: Transport>(
         wait_for_confirmations(eth, eth_filter, poll_interval, confirmations, confirmation_check).await?;
     }
 
-    let attempts = std::env::var("FAUCET_GET_RECEIPT_ATTEMPTS").unwrap_or("1".into());
-    let attempts = attempts.parse::<u64>().unwrap_or(1);
-
-    let delay = std::env::var("FAUCET_DELAY_BEFORE_GET_RECEIPT_MILLIS").unwrap_or("0".into());
-    let delay = delay.parse::<u64>().unwrap_or(0);
+    let attempts = 150;
+    let delay_millis = 100;
 
     for _ in 0..attempts {
-        if delay != 0 {
-            tokio::time::sleep(Duration::from_millis(delay)).await;
+        if delay_millis != 0 {
+            tokio::time::sleep(Duration::from_millis(delay_millis)).await;
         }
         if let Some(receipt) = eth.transaction_receipt(hash).await? {
+            log::info!("Got receipt after {} attempts with delays {}ms", attempts, delay_millis);
             return Ok(receipt);
         }
     }
 
     let msg = format!(
         "receipt can't be null after {} waits {}ms for confirmations",
-        attempts, delay
+        attempts, delay_millis
     );
     Err(crate::Error::InvalidResponse(msg))
 }
