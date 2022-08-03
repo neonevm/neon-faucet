@@ -83,20 +83,26 @@ async fn send_transaction_with_confirmation_<T: Transport>(
         wait_for_confirmations(eth, eth_filter, poll_interval, confirmations, confirmation_check).await?;
     }
 
+    let attempts = std::env::var("FAUCET_GET_RECEIPT_ATTEMPTS").unwrap_or("1".into());
+    let attempts = attempts.parse::<u64>().unwrap_or(1);
+
     let delay = std::env::var("FAUCET_DELAY_BEFORE_GET_RECEIPT_MILLIS").unwrap_or("0".into());
     let delay = delay.parse::<u64>().unwrap_or(0);
-    if delay != 0 {
-        tokio::time::sleep(Duration::from_millis(delay)).await;
+
+    for _ in 0..attempts {
+        if delay != 0 {
+            tokio::time::sleep(Duration::from_millis(delay)).await;
+        }
+        if let Some(receipt) = eth.transaction_receipt(hash).await? {
+            return Ok(receipt);
+        }
     }
 
-    let receipt = eth.transaction_receipt(hash).await?;
-    if receipt.is_none() {
-        return Err(crate::Error::InvalidResponse(
-            "receipt can't be null after wait for confirmations; qed".into(),
-        ));
-    }
-
-    Ok(receipt.unwrap())
+    let msg = format!(
+        "receipt can't be null after {} waits {}ms for confirmations",
+        attempts, delay
+    );
+    Err(crate::Error::InvalidResponse(msg))
 }
 
 /// Sends transaction and returns future resolved after transaction is confirmed
