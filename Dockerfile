@@ -7,6 +7,7 @@ FROM neonlabsorg/evm_loader:${NEON_EVM_COMMIT} AS spl
 FROM rust as builder
 RUN apt update && apt install -y libudev-dev
 COPY ./src /usr/src/faucet/src
+COPY ./rust-web3 /usr/src/faucet/rust-web3
 COPY ./erc20 /usr/src/faucet/erc20
 COPY ./Cargo.toml /usr/src/faucet
 WORKDIR /usr/src/faucet

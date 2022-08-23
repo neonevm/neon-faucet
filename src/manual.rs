@@ -9,7 +9,7 @@ The Neon Faucet is a service that distributes small amounts of tokens.
 const MANUAL_API: &str = r##"
 # HTTP API Endpoints
 
-A client uses POST requests to send data to the server.
+A client uses standard HTTP requests to send data to the server.
 Several endpoints are supported.
 
 |:-:|:-:|-

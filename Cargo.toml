@@ -3,8 +3,8 @@ name = "faucet"
 description = "NeonLabs Faucet Service"
 authors = ["NeonLabs Maintainers <maintainers@neonlabs.org>"]
 repository = "https://github.com/neonlabsorg/neon-faucet"
-version = "0.7.6-dev"
-edition = "2018"
+version = "0.10.0-dev"
+edition = "2021"
 
 [dependencies]
 actix-cors = { version = "0.6", default-features = false }
@@ -40,4 +40,4 @@ tracing = "0.1"
 tracing-log = "0.1"
 # tracing-subscriber with disabled feature "ansi" to force colorless logs
 tracing-subscriber = { version = "0.3", default_features = false, features = ["env-filter", "std", "fmt", "json", "time", "local-time", "tracing-log", "smallvec", "parking_lot"] }
-web3 = "0.18"
+web3 = { version = "0.18", path = "rust-web3" }
