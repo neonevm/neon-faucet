@@ -227,7 +227,7 @@ fn deposit_instruction(
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(0x1e_u8, ether_address.as_fixed_bytes()),
+        &(0x1f_u8, ether_address.as_fixed_bytes()),
         vec![
             AccountMeta::new(source_pubkey, false),
             AccountMeta::new(destination_pubkey, false),
