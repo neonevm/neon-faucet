@@ -14,6 +14,7 @@ use solana_sdk::signature::Signer as _;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::system_program;
 use solana_sdk::transaction::Transaction;
+use spl_associated_token_account::get_associated_token_address;
 
 use crate::config;
 use crate::{ethereum, id::ReqId};
@@ -53,14 +54,10 @@ pub async fn deposit_token(
     })?;
 
     let signer_pubkey = signer.pubkey();
-    let signer_token_pubkey =
-        spl_associated_token_account::get_associated_token_address(&signer_pubkey, &token_mint_id);
+    let signer_token_pubkey = get_associated_token_address(&signer_pubkey, &token_mint_id);
 
     let evm_token_authority = Pubkey::find_program_address(&[b"Deposit"], &evm_loader_id).0;
-    let evm_pool_pubkey = spl_associated_token_account::get_associated_token_address(
-        &evm_token_authority,
-        &token_mint_id,
-    );
+    let evm_pool_pubkey = get_associated_token_address(&evm_token_authority, &token_mint_id);
 
     let ether_pubkey = ether_address_to_solana_pubkey(&ether_address, &evm_loader_id).0;
 
@@ -71,8 +68,9 @@ pub async fn deposit_token(
         let mut instructions = Vec::with_capacity(6);
 
         instructions.push(spl_memo(&id, &signer_pubkey));
-        instructions.push(compute_budget_instruction_request_units(&id));
         instructions.push(compute_budget_instruction_request_heap_frame(&id));
+        instructions.push(compute_budget_instruction_set_unit_limit(&id));
+        instructions.push(compute_budget_instruction_set_unit_price(&id));
 
         let ether_account = client.get_account(&ether_pubkey);
         if ether_account.is_err() {
@@ -150,23 +148,6 @@ fn spl_memo(id: &ReqId, pubkey: &Pubkey) -> Instruction {
     spl_memo::build_memo(memo.as_bytes(), &[pubkey])
 }
 
-fn compute_budget_instruction_request_units(id: &ReqId) -> Instruction {
-    debug!("{} Instruction: ComputeBudgetInstruction::RequestUnits", id);
-    let units = config::solana_compute_budget_units();
-    let fee = config::solana_request_units_additional_fee();
-    if units == 0 {
-        warn!("{} solana_compute_budget_units = {}", id, units);
-    } else {
-        debug!("{} solana_compute_budget_units = {}", id, units);
-    }
-    if fee == 0 {
-        warn!("{} solana_request_units_additional_fee = {}", id, fee);
-    } else {
-        debug!("{} solana_request_units_additional_fee = {}", id, fee);
-    }
-    ComputeBudgetInstruction::request_units(units, fee)
-}
-
 fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
     debug!(
         "{} Instruction: ComputeBudgetInstruction::RequestHeapFrame",
@@ -179,6 +160,34 @@ fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
         debug!("{} solana_compute_budget_heap_frame = {}", id, hf);
     }
     ComputeBudgetInstruction::request_heap_frame(hf)
+}
+
+fn compute_budget_instruction_set_unit_limit(id: &ReqId) -> Instruction {
+    debug!(
+        "{} Instruction: ComputeBudgetInstruction::SetComputeUnitLimit",
+        id
+    );
+    let units = config::solana_compute_budget_units();
+    if units == 0 {
+        warn!("{} solana_compute_budget_units = {}", id, units);
+    } else {
+        debug!("{} solana_compute_budget_units = {}", id, units);
+    }
+    ComputeBudgetInstruction::set_compute_unit_limit(units)
+}
+
+fn compute_budget_instruction_set_unit_price(id: &ReqId) -> Instruction {
+    debug!(
+        "{} Instruction: ComputeBudgetInstruction::SetComputeUnitPrice",
+        id
+    );
+    let fee = config::solana_request_units_additional_fee();
+    if fee == 0 {
+        warn!("{} solana_request_units_additional_fee = {}", id, fee);
+    } else {
+        debug!("{} solana_request_units_additional_fee = {}", id, fee);
+    }
+    ComputeBudgetInstruction::set_compute_unit_price(fee)
 }
 
 /// Returns instruction for creation of account.

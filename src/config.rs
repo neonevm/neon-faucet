@@ -93,8 +93,8 @@ const EVM_LOADER: &str = "EVM_LOADER";
 const NEON_SEED_VERSION: &str = "NEON_SEED_VERSION";
 const NEON_TOKEN_MINT: &str = "NEON_TOKEN_MINT";
 const NEON_TOKEN_MINT_DECIMALS: &str = "NEON_TOKEN_MINT_DECIMALS";
-const NEON_COMPUTE_UNITS: &str = "NEON_COMPUTE_UNITS";
 const NEON_HEAP_FRAME: &str = "NEON_HEAP_FRAME";
+const NEON_COMPUTE_UNITS: &str = "NEON_COMPUTE_UNITS";
 const NEON_ADDITIONAL_FEE: &str = "NEON_ADDITIONAL_FEE";
 const NEON_OPERATOR_KEYFILE: &str = "NEON_OPERATOR_KEYFILE";
 const NEON_ETH_MAX_AMOUNT: &str = "NEON_ETH_MAX_AMOUNT";
@@ -285,18 +285,18 @@ pub fn solana_token_mint_decimals() -> u8 {
     CONFIG.read().unwrap().solana.token_mint_decimals
 }
 
-/// Gets the `solana.compute_budget_units` value.
-pub fn solana_compute_budget_units() -> u32 {
-    CONFIG.read().unwrap().solana.compute_budget_units
-}
-
 /// Gets the `solana.compute_budget_heap_frame` value.
 pub fn solana_compute_budget_heap_frame() -> u32 {
     CONFIG.read().unwrap().solana.compute_budget_heap_frame
 }
 
+/// Gets the `solana.compute_budget_units` value.
+pub fn solana_compute_budget_units() -> u32 {
+    CONFIG.read().unwrap().solana.compute_budget_units
+}
+
 /// Gets the `solana.request_units_additional_fee` value.
-pub fn solana_request_units_additional_fee() -> u32 {
+pub fn solana_request_units_additional_fee() -> u64 {
     CONFIG.read().unwrap().solana.compute_budget_additional_fee
 }
 
@@ -466,9 +466,9 @@ struct Solana {
     account_seed_version: u8,           // from neon params
     token_mint: String,                 // from neon params
     token_mint_decimals: u8,            // from neon params
-    compute_budget_units: u32,          // from neon params
     compute_budget_heap_frame: u32,     // from neon params
-    compute_budget_additional_fee: u32, // from neon params
+    compute_budget_units: u32,          // from neon params
+    compute_budget_additional_fee: u64, // from neon params
     operator_keyfile: PathBuf,
     max_amount: u64,
 }
@@ -825,14 +825,14 @@ pub async fn load_neon_params() -> Result<()> {
             NEON_TOKEN_MINT_DECIMALS => {
                 CONFIG.write().unwrap().solana.token_mint_decimals = val.parse::<u8>()?
             }
-            NEON_COMPUTE_UNITS => {
-                CONFIG.write().unwrap().solana.compute_budget_units = val.parse::<u32>()?
-            }
             NEON_HEAP_FRAME => {
                 CONFIG.write().unwrap().solana.compute_budget_heap_frame = val.parse::<u32>()?
             }
+            NEON_COMPUTE_UNITS => {
+                CONFIG.write().unwrap().solana.compute_budget_units = val.parse::<u32>()?
+            }
             NEON_ADDITIONAL_FEE => {
-                CONFIG.write().unwrap().solana.compute_budget_additional_fee = val.parse::<u32>()?
+                CONFIG.write().unwrap().solana.compute_budget_additional_fee = val.parse::<u64>()?
             }
             _ => {}
         }

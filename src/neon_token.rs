@@ -70,6 +70,7 @@ async fn check_token_account(id: &ReqId) -> Result<()> {
     use solana_client::rpc_client::RpcClient;
     use solana_sdk::pubkey::Pubkey;
     use solana_sdk::signature::Signer as _;
+    use spl_associated_token_account::get_associated_token_address;
     use std::str::FromStr as _;
 
     let operator = config::solana_operator_keypair()
@@ -83,10 +84,7 @@ async fn check_token_account(id: &ReqId) -> Result<()> {
         )
     })?;
 
-    let operator_token_pubkey = spl_associated_token_account::get_associated_token_address(
-        &operator_pubkey,
-        &token_mint_id,
-    );
+    let operator_token_pubkey = get_associated_token_address(&operator_pubkey, &token_mint_id);
 
     info!("{} Token account: {}", id, operator_token_pubkey);
     let r = tokio::task::spawn_blocking(move || -> ClientResult<UiTokenAmount> {
