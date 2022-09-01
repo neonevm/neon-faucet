@@ -1172,7 +1172,7 @@ dependencies = [
  "lazy_static",
  "md5",
  "minimad",
- "nix",
+ "nix 0.25.0",
  "num_cpus",
  "secp256k1",
  "serde",
@@ -2068,6 +2068,20 @@ dependencies = [
  "cfg-if",
  "libc",
  "memoffset",
+]
+
+[[package]]
+name = "nix"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e322c04a9e3440c327fca7b6c8a63e6890a32fa2ad689db972425f07e0d22abb"
+dependencies = [
+ "autocfg",
+ "bitflags",
+ "cfg-if",
+ "libc",
+ "memoffset",
+ "pin-utils",
 ]
 
 [[package]]
@@ -3370,7 +3384,7 @@ dependencies = [
  "bincode",
  "clap 2.34.0",
  "log",
- "nix",
+ "nix 0.23.1",
  "rand 0.7.3",
  "serde",
  "serde_derive",
@@ -3399,7 +3413,7 @@ dependencies = [
  "lazy_static",
  "libc",
  "log",
- "nix",
+ "nix 0.23.1",
  "rand 0.7.3",
  "rayon",
  "serde",
