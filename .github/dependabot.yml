@@ -8,7 +8,7 @@ updates:
           timezone: "UTC"
       target-branch: "develop"
       ignore:
-          - dependency-name: "secp256k1"
+        - dependency-name: "secp256k1"
       open-pull-requests-limit: 10
       assignees:
         - "vakond"
