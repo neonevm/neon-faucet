@@ -10,7 +10,7 @@ edition = "2021"
 actix-cors = { version = "0.6", default-features = false }
 actix-web = { version = "4.1", default-features = false, features = ["macros"] }
 chrono = "0.4"
-clap = { version = "3.1", features = ["derive"] }
+clap = { version = "3.2", features = ["derive"] }
 derive-new = "0.5"
 ed25519-dalek = "1.0"
 eyre = "0.6"
