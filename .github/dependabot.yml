@@ -1,0 +1,14 @@
+version: 2
+updates:
+    - package-ecosystem: "cargo"
+      directory: "/"
+      schedule:
+          interval: "daily"
+          time: "10:00"
+          timezone: "UTC"
+      target-branch: "develop"
+      ignore:
+        - dependency-name: "secp256k1"
+      open-pull-requests-limit: 10
+      assignees:
+        - "vakond"

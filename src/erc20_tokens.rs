@@ -83,7 +83,7 @@ pub async fn airdrop(id: &ReqId, params: Airdrop) -> Result<()> {
 }
 
 /// Initializes local cache of tokens properties.
-async fn init<T: Transport>(id: &ReqId, eth: Eth<T>, addresses: &Vec<String>) -> Result<()> {
+async fn init<T: Transport>(id: &ReqId, eth: Eth<T>, addresses: &[String]) -> Result<()> {
     info!("{} Checking tokens...", id);
 
     for token_address in addresses {
