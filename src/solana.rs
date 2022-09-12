@@ -95,7 +95,6 @@ pub async fn deposit_token(
             signer_token_pubkey,
             evm_pool_pubkey,
             ether_pubkey,
-            evm_token_authority,
             evm_loader_id,
             spl_token::id(),
             signer_pubkey,
@@ -213,7 +212,6 @@ fn deposit_instruction(
     source_pubkey: Pubkey,
     destination_pubkey: Pubkey,
     ether_account_pubkey: Pubkey,
-    evm_token_authority: Pubkey,
     evm_loader_id: Pubkey,
     spl_token_id: Pubkey,
     signer_pubkey: Pubkey,
@@ -223,7 +221,6 @@ fn deposit_instruction(
     debug!("{} source_pubkey = {}", id, source_pubkey);
     debug!("{} destination_pubkey = {}", id, destination_pubkey);
     debug!("{} ether_account_pubkey = {}", id, ether_account_pubkey);
-    debug!("{} evm_token_authority = {}", id, evm_token_authority);
 
     Instruction::new_with_bincode(
         evm_loader_id,
@@ -232,7 +229,6 @@ fn deposit_instruction(
             AccountMeta::new(source_pubkey, false),
             AccountMeta::new(destination_pubkey, false),
             AccountMeta::new(ether_account_pubkey, false),
-            AccountMeta::new_readonly(evm_token_authority, false),
             AccountMeta::new_readonly(spl_token_id, false),
             AccountMeta::new(signer_pubkey, true),
             AccountMeta::new_readonly(system_program::id(), false),
