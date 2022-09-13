@@ -13,7 +13,7 @@ COPY ./Cargo.toml /usr/src/faucet
 WORKDIR /usr/src/faucet
 ARG REVISION
 ENV FAUCET_REVISION=${REVISION}
-RUN cargo install cargo-audit && cargo audit && cargo build --release
+RUN cargo build --release
 
 FROM debian:11
 RUN apt update && apt install -y ca-certificates curl
