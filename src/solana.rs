@@ -84,7 +84,7 @@ pub async fn deposit_token(
             &id,
             spl_token::id(),
             signer_token_pubkey,
-            evm_token_authority,
+            ether_pubkey,
             signer_pubkey,
             amount,
         ));
