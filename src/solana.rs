@@ -68,11 +68,6 @@ pub async fn deposit_token(
     tokio::task::spawn_blocking(move || -> Result<()> {
         let client =
             RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment());
-        let mut instructions = Vec::with_capacity(6);
-
-        instructions.push(spl_memo(&id, &signer_pubkey));
-        instructions.push(compute_budget_instruction_request_units(&id));
-        instructions.push(compute_budget_instruction_request_heap_frame(&id));
 
         let amount = if in_fractions {
             amount
@@ -80,25 +75,27 @@ pub async fn deposit_token(
             convert_whole_to_fractions(amount)?
         };
 
-        instructions.push(spl_approve_instruction(
-            &id,
-            spl_token::id(),
-            signer_token_pubkey,
-            ether_pubkey,
-            signer_pubkey,
-            amount,
-        ));
-
-        instructions.push(deposit_instruction(
-            &id,
-            ether_address,
-            signer_token_pubkey,
-            evm_pool_pubkey,
-            ether_pubkey,
-            evm_loader_id,
-            spl_token::id(),
-            signer_pubkey,
-        ));
+        let instructions = vec![
+            spl_memo(&id, &signer_pubkey),
+            spl_approve_instruction(
+                &id,
+                spl_token::id(),
+                signer_token_pubkey,
+                ether_pubkey,
+                signer_pubkey,
+                amount,
+            ),
+            deposit_instruction(
+                &id,
+                ether_address,
+                signer_token_pubkey,
+                evm_pool_pubkey,
+                ether_pubkey,
+                evm_loader_id,
+                spl_token::id(),
+                signer_pubkey,
+            ),
+        ];
 
         debug!(
             "{} Creating message with {} instructions...",
@@ -139,37 +136,6 @@ fn spl_memo(id: &ReqId, pubkey: &Pubkey) -> Instruction {
     debug!("{} Instruction: SPL Memo", id);
     let memo = format!("Neon Faucet {}", id.as_str());
     spl_memo::build_memo(memo.as_bytes(), &[pubkey])
-}
-
-fn compute_budget_instruction_request_units(id: &ReqId) -> Instruction {
-    debug!("{} Instruction: ComputeBudgetInstruction::RequestUnits", id);
-    let units = config::solana_compute_budget_units();
-    let fee = config::solana_request_units_additional_fee();
-    if units == 0 {
-        warn!("{} solana_compute_budget_units = {}", id, units);
-    } else {
-        debug!("{} solana_compute_budget_units = {}", id, units);
-    }
-    if fee == 0 {
-        warn!("{} solana_request_units_additional_fee = {}", id, fee);
-    } else {
-        debug!("{} solana_request_units_additional_fee = {}", id, fee);
-    }
-    ComputeBudgetInstruction::request_units(units, fee)
-}
-
-fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
-    debug!(
-        "{} Instruction: ComputeBudgetInstruction::RequestHeapFrame",
-        id
-    );
-    let hf = config::solana_compute_budget_heap_frame();
-    if hf == 0 {
-        warn!("{} solana_compute_budget_heap_frame = {}", id, hf);
-    } else {
-        debug!("{} solana_compute_budget_heap_frame = {}", id, hf);
-    }
-    ComputeBudgetInstruction::request_heap_frame(hf)
 }
 
 /// Returns instruction to approve transfer of NEON tokens.
