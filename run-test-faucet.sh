@@ -15,7 +15,7 @@ fi
 solana config set -u "$SOLANA_URL"
 
 echo "$(date "+%F %X.%3N") E $(basename "$0"):${LINENO} $$ ${COMPONENT}:StartScript {} Extracting NEON-EVM's ELF parameters"
-export EVM_LOADER=$(solana address -k /spl/bin/evm_loader-keypair.json)
+#export EVM_LOADER=$(solana address -k /spl/bin/evm_loader-keypair.json)
 export $(/spl/bin/neon-cli --commitment confirmed --url $SOLANA_URL --evm_loader="$EVM_LOADER" neon-elf-params)
 
 echo "$(date "+%F %X.%3N") E $(basename "$0"):${LINENO} $$ ${COMPONENT}:StartScript {} Generating new account for operate with faucet service"

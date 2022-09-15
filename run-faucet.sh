@@ -7,7 +7,7 @@ if [ -z "$SOLANA_URL" ]; then
 fi
 
 echo "$(date "+%F %X.%3N") I $(basename "$0"):${LINENO} $$ ${COMPONENT}:StartScript {} Extracting NEON-EVM's ELF parameters"
-export EVM_LOADER=$(solana address -k /spl/bin/evm_loader-keypair.json)
+#export EVM_LOADER=$(solana address -k /spl/bin/evm_loader-keypair.json)
 export $(/spl/bin/neon-cli --commitment confirmed --url $SOLANA_URL --evm_loader="$EVM_LOADER" neon-elf-params)
 
 BALANCE=$(solana balance | tr '.' '\t'| tr '[:space:]' '\t' | cut -f1)
