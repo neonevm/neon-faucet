@@ -10,7 +10,7 @@ echo "$(date "+%F %X.%3N") I $(basename "$0"):${LINENO} $$ ${COMPONENT}:StartScr
 #export EVM_LOADER=$(solana address -k /spl/bin/evm_loader-keypair.json)
 export $(/spl/bin/neon-cli --commitment confirmed --url $SOLANA_URL --evm_loader="$EVM_LOADER" neon-elf-params)
 
-BALANCE=$(solana balance | tr '.' '\t'| tr '[:space:]' '\t' | cut -f1)
+BALANCE=$(solana balance --keypair "$NEON_OPERATOR_KEYFILE" | tr '.' '\t'| tr '[:space:]' '\t' | cut -f1)
 if [ "$BALANCE" -eq 0 ]; then
     echo "$(date "+%F %X.%3N") W $(basename "$0"):${LINENO} $$ ${COMPONENT}:StartScript {} SOL balance is 0"
     exit 1
