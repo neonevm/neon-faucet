@@ -3,10 +3,9 @@
 use std::str::FromStr as _;
 
 use eyre::{eyre, Result, WrapErr as _};
-use tracing::{debug, warn};
+use tracing::debug;
 
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::compute_budget::ComputeBudgetInstruction;
 use solana_sdk::instruction::{AccountMeta, Instruction};
 use solana_sdk::message::Message;
 use solana_sdk::pubkey::Pubkey;

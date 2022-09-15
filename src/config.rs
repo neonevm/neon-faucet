@@ -285,21 +285,6 @@ pub fn solana_token_mint_decimals() -> u8 {
     CONFIG.read().unwrap().solana.token_mint_decimals
 }
 
-/// Gets the `solana.compute_budget_units` value.
-pub fn solana_compute_budget_units() -> u32 {
-    CONFIG.read().unwrap().solana.compute_budget_units
-}
-
-/// Gets the `solana.compute_budget_heap_frame` value.
-pub fn solana_compute_budget_heap_frame() -> u32 {
-    CONFIG.read().unwrap().solana.compute_budget_heap_frame
-}
-
-/// Gets the `solana.request_units_additional_fee` value.
-pub fn solana_request_units_additional_fee() -> u32 {
-    CONFIG.read().unwrap().solana.compute_budget_additional_fee
-}
-
 /// Gets the `solana.operator` keypair value.
 pub fn solana_operator_keypair() -> Result<Keypair> {
     let keyfile = CONFIG.read().unwrap().solana.operator_keyfile.clone();
