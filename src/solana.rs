@@ -3,10 +3,9 @@
 use std::str::FromStr as _;
 
 use eyre::{eyre, Result, WrapErr as _};
-use tracing::{debug, warn};
+use tracing::debug;
 
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::compute_budget::ComputeBudgetInstruction;
 use solana_sdk::instruction::{AccountMeta, Instruction};
 use solana_sdk::message::Message;
 use solana_sdk::pubkey::Pubkey;
@@ -68,21 +67,6 @@ pub async fn deposit_token(
     tokio::task::spawn_blocking(move || -> Result<()> {
         let client =
             RpcClient::new_with_commitment(config::solana_url(), config::solana_commitment());
-        let mut instructions = Vec::with_capacity(6);
-
-        instructions.push(spl_memo(&id, &signer_pubkey));
-        instructions.push(compute_budget_instruction_request_units(&id));
-        instructions.push(compute_budget_instruction_request_heap_frame(&id));
-
-        let ether_account = client.get_account(&ether_pubkey);
-        if ether_account.is_err() {
-            instructions.push(create_ether_account_instruction(
-                &id,
-                evm_loader_id,
-                signer_pubkey,
-                ether_address,
-            ));
-        }
 
         let amount = if in_fractions {
             amount
@@ -90,24 +74,27 @@ pub async fn deposit_token(
             convert_whole_to_fractions(amount)?
         };
 
-        instructions.push(spl_approve_instruction(
-            &id,
-            spl_token::id(),
-            signer_token_pubkey,
-            evm_token_authority,
-            signer_pubkey,
-            amount,
-        ));
-
-        instructions.push(deposit_instruction(
-            &id,
-            signer_token_pubkey,
-            evm_pool_pubkey,
-            ether_pubkey,
-            evm_token_authority,
-            evm_loader_id,
-            spl_token::id(),
-        ));
+        let instructions = vec![
+            spl_memo(&id, &signer_pubkey),
+            spl_approve_instruction(
+                &id,
+                spl_token::id(),
+                signer_token_pubkey,
+                ether_pubkey,
+                signer_pubkey,
+                amount,
+            ),
+            deposit_instruction(
+                &id,
+                ether_address,
+                signer_token_pubkey,
+                evm_pool_pubkey,
+                ether_pubkey,
+                evm_loader_id,
+                spl_token::id(),
+                signer_pubkey,
+            ),
+        ];
 
         debug!(
             "{} Creating message with {} instructions...",
@@ -150,63 +137,6 @@ fn spl_memo(id: &ReqId, pubkey: &Pubkey) -> Instruction {
     spl_memo::build_memo(memo.as_bytes(), &[pubkey])
 }
 
-fn compute_budget_instruction_request_units(id: &ReqId) -> Instruction {
-    debug!("{} Instruction: ComputeBudgetInstruction::RequestUnits", id);
-    let units = config::solana_compute_budget_units();
-    let fee = config::solana_request_units_additional_fee();
-    if units == 0 {
-        warn!("{} solana_compute_budget_units = {}", id, units);
-    } else {
-        debug!("{} solana_compute_budget_units = {}", id, units);
-    }
-    if fee == 0 {
-        warn!("{} solana_request_units_additional_fee = {}", id, fee);
-    } else {
-        debug!("{} solana_request_units_additional_fee = {}", id, fee);
-    }
-    ComputeBudgetInstruction::request_units(units, fee)
-}
-
-fn compute_budget_instruction_request_heap_frame(id: &ReqId) -> Instruction {
-    debug!(
-        "{} Instruction: ComputeBudgetInstruction::RequestHeapFrame",
-        id
-    );
-    let hf = config::solana_compute_budget_heap_frame();
-    if hf == 0 {
-        warn!("{} solana_compute_budget_heap_frame = {}", id, hf);
-    } else {
-        debug!("{} solana_compute_budget_heap_frame = {}", id, hf);
-    }
-    ComputeBudgetInstruction::request_heap_frame(hf)
-}
-
-/// Returns instruction for creation of account.
-fn create_ether_account_instruction(
-    id: &ReqId,
-    evm_loader_id: Pubkey,
-    signer_pubkey: Pubkey,
-    ether_address: ethereum::Address,
-) -> Instruction {
-    debug!("{} Instruction: CreateAccount", id);
-    let (solana_address, nonce) = ether_address_to_solana_pubkey(&ether_address, &evm_loader_id);
-
-    debug!("{} evm_loader_id {}", id, evm_loader_id);
-    debug!("{} signer_pubkey {}", id, signer_pubkey);
-    debug!("{} ether_address {}", id, ether_address);
-    debug!("{} solana_address {}", id, solana_address);
-
-    Instruction::new_with_bincode(
-        evm_loader_id,
-        &(24_u8, ether_address.as_fixed_bytes(), nonce),
-        vec![
-            AccountMeta::new(signer_pubkey, true),
-            AccountMeta::new_readonly(system_program::id(), false),
-            AccountMeta::new(solana_address, false),
-        ],
-    )
-}
-
 /// Returns instruction to approve transfer of NEON tokens.
 fn spl_approve_instruction(
     id: &ReqId,
@@ -243,29 +173,30 @@ fn spl_approve_instruction(
 /// Returns instruction to deposit NEON tokens.
 fn deposit_instruction(
     id: &ReqId,
+    ether_address: ethereum::Address,
     source_pubkey: Pubkey,
     destination_pubkey: Pubkey,
     ether_account_pubkey: Pubkey,
-    evm_token_authority: Pubkey,
     evm_loader_id: Pubkey,
     spl_token_id: Pubkey,
+    signer_pubkey: Pubkey,
 ) -> Instruction {
     debug!("{} Instruction: Deposit", id);
 
     debug!("{} source_pubkey = {}", id, source_pubkey);
     debug!("{} destination_pubkey = {}", id, destination_pubkey);
     debug!("{} ether_account_pubkey = {}", id, ether_account_pubkey);
-    debug!("{} evm_token_authority = {}", id, evm_token_authority);
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(25_u8), // Index of the Deposit instruction in EVM Loader
+        &(0x27_u8, ether_address.as_fixed_bytes()),
         vec![
             AccountMeta::new(source_pubkey, false),
             AccountMeta::new(destination_pubkey, false),
             AccountMeta::new(ether_account_pubkey, false),
-            AccountMeta::new_readonly(evm_token_authority, false),
             AccountMeta::new_readonly(spl_token_id, false),
+            AccountMeta::new(signer_pubkey, true),
+            AccountMeta::new_readonly(system_program::id(), false),
         ],
     )
 }
