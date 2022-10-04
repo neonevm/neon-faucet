@@ -3,7 +3,7 @@ name = "faucet"
 description = "NeonLabs Faucet Service"
 authors = ["NeonLabs Maintainers <maintainers@neonlabs.org>"]
 repository = "https://github.com/neonlabsorg/neon-faucet"
-version = "0.12.0-dev"
+version = "0.12.0"
 edition = "2021"
 
 [dependencies]
