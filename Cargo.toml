@@ -34,7 +34,7 @@ spl-token = { version = "3.2", default_features = false, features = ["no-entrypo
 termimad = "0.20"
 thiserror = "1.0"
 time = { version = "0.3", default_features = false, features = ["macros"] }
-tokio = { version = "1.17", default_features = false, features = ["rt"] }
+tokio = { version = "1.25", default_features = false, features = ["rt"] }
 toml = "0.5"
 tracing = "0.1"
 tracing-log = "0.1"
