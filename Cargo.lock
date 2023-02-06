@@ -1171,7 +1171,7 @@ dependencies = [
  "hex",
  "lazy_static",
  "md5",
- "minimad",
+ "minimad 0.10.0",
  "nix 0.25.0",
  "num_cpus",
  "secp256k1",
@@ -2011,9 +2011,18 @@ checksum = "2a60c7ce501c71e03a9c9c0d35b861413ae925bd979cc7a4e30d060069aaac8d"
 
 [[package]]
 name = "minimad"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd37b2e65fbd459544194d8f52ed84027e031684335a062c708774c09d172b0b"
+checksum = "277639f0198568f70f8fe4ab88a52a67c96bca12f27ba5c17a76acdcb8b45834"
+dependencies = [
+ "once_cell",
+]
+
+[[package]]
+name = "minimad"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fed1b13e2000bd8e238d97a97de6fc30224f89a08b0aa5aaa09ed1bd68ba2fa1"
 dependencies = [
  "once_cell",
 ]
@@ -2171,9 +2180,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.14.0"
+version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f7254b99e31cad77da24b08ebf628882739a608578bb1bcdfc1f9c21260d7c0"
+checksum = "6f61fba1741ea2b3d6a1e3178721804bb716a68a6aeba1149b5d52e3d464ea66"
 
 [[package]]
 name = "opaque-debug"
@@ -3887,7 +3896,7 @@ dependencies = [
  "coolor",
  "crossbeam",
  "crossterm",
- "minimad",
+ "minimad 0.9.1",
  "thiserror",
  "unicode-width",
 ]
