@@ -20,7 +20,7 @@ hex = "0.4"
 lazy_static = "1.4"
 minimad = "0.9"
 md5 = "0.7"
-nix = "0.25"
+nix = "0.26"
 num_cpus = "1.13"
 secp256k1 = "=0.21.3"
 serde = { version = "1.0", default_features = false }
