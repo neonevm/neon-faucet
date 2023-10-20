@@ -2,7 +2,7 @@ ARG NEON_EVM_COMMIT=latest
 
 FROM neonlabsorg/evm_loader:${NEON_EVM_COMMIT} AS spl
 
-FROM rust as builder
+FROM solanalabs/rust:1.69.0 AS builder
 RUN apt update && apt install -y libudev-dev
 COPY ./src /usr/src/faucet/src
 COPY ./rust-web3 /usr/src/faucet/rust-web3
@@ -35,8 +35,6 @@ COPY --from=spl /opt/spl-token \
 		/opt/create-test-accounts.sh \
 		/opt/evm_loader-keypair.json \
 		/spl/bin/
-
-COPY --from=spl /opt/keys/neon_token_keypair.json /opt/faucet/owner-keypair.json
 
 COPY --from=spl /opt/spl-token \
 		/usr/local/bin/
