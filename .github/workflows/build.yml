@@ -33,6 +33,7 @@ jobs:
 
       - name: build docker image
         run: |
+          env
           docker build -f Dockerfile . --tag=neonlabsorg/faucet:${GITHUB_SHA}
 
       - name: publish image
