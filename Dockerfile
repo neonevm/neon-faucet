@@ -1,7 +1,5 @@
-ARG SOLANA_REVISION=v1.16.13
 ARG NEON_EVM_COMMIT=latest
 
-FROM neonlabsorg/solana:${SOLANA_REVISION} AS solana
 FROM neonlabsorg/evm_loader:${NEON_EVM_COMMIT} AS spl
 
 FROM rust as builder
@@ -15,7 +13,7 @@ ARG REVISION
 ENV FAUCET_REVISION=${REVISION}
 RUN cargo build --release
 
-FROM debian:11
+FROM debian:12
 RUN apt update && apt install -y ca-certificates curl
 RUN mkdir -p /opt/faucet
 ADD internal/id.json /opt/faucet/
@@ -25,7 +23,7 @@ ADD faucet.conf /
 COPY --from=builder /usr/src/faucet/target/release/faucet /opt/faucet/
 RUN ln -s /opt/faucet/faucet /usr/local/bin/
 
-COPY --from=solana /opt/solana/bin/solana \
+COPY --from=spl /opt/solana/bin/solana \
 		/opt/solana/bin/solana-faucet \
 		/opt/solana/bin/solana-keygen \
 		/opt/solana/bin/solana-validator \
