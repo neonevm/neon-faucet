@@ -38,5 +38,5 @@ jobs:
       - name: publish image
         run: |
           docker push neonlabsorg/faucet:${GITHUB_SHA}
-          docker tag neonlabsorg/faucet:${GITHUB_SHA} neonlabsorg/faucet:${ GITHUB_REF_NAME }
-          docker push neonlabsorg/faucet:${ GITHUB_REF_NAME }
+          docker tag neonlabsorg/faucet:${GITHUB_SHA} neonlabsorg/faucet:${GITHUB_REF_NAME}
+          docker push neonlabsorg/faucet:${GITHUB_REF_NAME}
