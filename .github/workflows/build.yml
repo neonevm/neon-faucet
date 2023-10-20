@@ -33,7 +33,6 @@ jobs:
 
       - name: build docker image
         run: |
-          env
           docker build -f Dockerfile . --tag=neonlabsorg/faucet:${GITHUB_SHA}
 
       - name: publish image
@@ -41,3 +40,9 @@ jobs:
           docker push neonlabsorg/faucet:${GITHUB_SHA}
           docker tag neonlabsorg/faucet:${GITHUB_SHA} neonlabsorg/faucet:${GITHUB_HEAD_REF}
           docker push neonlabsorg/faucet:${GITHUB_HEAD_REF}
+
+      - name: publish latest tag
+        if: github.ref_name == 'develop'
+        run: |
+          docker tag neonlabsorg/faucet:${GITHUB_SHA} neonlabsorg/faucet:latest
+          docker push neonlabsorg/faucet:latest
