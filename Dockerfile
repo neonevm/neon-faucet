@@ -13,7 +13,7 @@ ARG REVISION
 ENV FAUCET_REVISION=${REVISION}
 RUN cargo build --release
 
-FROM debian:12
+FROM debian:11
 RUN apt update && apt install -y ca-certificates curl
 RUN mkdir -p /opt/faucet
 WORKDIR /opt/faucet
