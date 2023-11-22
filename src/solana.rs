@@ -61,7 +61,8 @@ pub async fn deposit_token(
         &token_mint_id,
     );
 
-    let ether_pubkey = ether_address_to_solana_pubkey(&ether_address, &evm_loader_id).0;
+    let ether_balance_pubkey = ether_address_to_balance_pubkey(&evm_loader_id, &ether_address);
+    let ether_contract_pubkey = ether_address_to_contract_pubkey(&evm_loader_id, &ether_address);
 
     let id = id.to_owned();
     tokio::task::spawn_blocking(move || -> Result<()> {
@@ -80,16 +81,19 @@ pub async fn deposit_token(
                 &id,
                 spl_token::id(),
                 signer_token_pubkey,
-                ether_pubkey,
+                ether_balance_pubkey,
                 signer_pubkey,
                 amount,
             ),
             deposit_instruction(
                 &id,
+                config::solana_chain_id(),
                 ether_address,
+                token_mint_id,
                 signer_token_pubkey,
                 evm_pool_pubkey,
-                ether_pubkey,
+                ether_balance_pubkey,
+                ether_contract_pubkey,
                 evm_loader_id,
                 spl_token::id(),
                 signer_pubkey,
@@ -118,17 +122,26 @@ pub async fn deposit_token(
 }
 
 /// Maps an Ethereum address into a Solana address.
-fn ether_address_to_solana_pubkey(
-    ether_address: &ethereum::Address,
-    program_id: &Pubkey,
-) -> (Pubkey, u8) {
-    Pubkey::find_program_address(
-        &[
-            &[config::solana_account_seed_version()],
-            ether_address.as_bytes(),
-        ],
-        program_id,
-    )
+fn ether_address_to_balance_pubkey(program_id: &Pubkey, address: &ethereum::Address) -> Pubkey {
+    let chain_id = web3::types::U256::from(config::solana_chain_id());
+
+    let mut chain_id_bytes = [0_u8; 32];
+    chain_id.to_big_endian(&mut chain_id_bytes);
+
+    let seeds: &[&[u8]] = &[
+        &[config::solana_account_seed_version()],
+        address.as_bytes(),
+        &chain_id_bytes,
+    ];
+    Pubkey::find_program_address(seeds, program_id).0
+}
+
+fn ether_address_to_contract_pubkey(program_id: &Pubkey, address: &ethereum::Address) -> Pubkey {
+    let seeds: &[&[u8]] = &[
+        &[config::solana_account_seed_version()],
+        address.as_bytes(),
+    ];
+    Pubkey::find_program_address(seeds, program_id).0
 }
 
 fn spl_memo(id: &ReqId, pubkey: &Pubkey) -> Instruction {
@@ -171,12 +184,16 @@ fn spl_approve_instruction(
 }
 
 /// Returns instruction to deposit NEON tokens.
+#[allow(clippy::too_many_arguments)]
 fn deposit_instruction(
     id: &ReqId,
+    chain_id: u64,
     ether_address: ethereum::Address,
+    mint_pubkey: Pubkey,
     source_pubkey: Pubkey,
-    destination_pubkey: Pubkey,
-    ether_account_pubkey: Pubkey,
+    pool_pubkey: Pubkey,
+    ether_balance_pubkey: Pubkey,
+    ether_contract_pubkey: Pubkey,
     evm_loader_id: Pubkey,
     spl_token_id: Pubkey,
     signer_pubkey: Pubkey,
@@ -184,16 +201,22 @@ fn deposit_instruction(
     debug!("{} Instruction: Deposit", id);
 
     debug!("{} source_pubkey = {}", id, source_pubkey);
-    debug!("{} destination_pubkey = {}", id, destination_pubkey);
-    debug!("{} ether_account_pubkey = {}", id, ether_account_pubkey);
+    debug!("{} destination_pubkey = {}", id, pool_pubkey);
+    debug!("{} ether_account_pubkey = {}", id, ether_balance_pubkey);
 
     Instruction::new_with_bincode(
         evm_loader_id,
-        &(0x27_u8, ether_address.as_fixed_bytes()),
+        &(
+            0x31_u8,
+            ether_address.as_fixed_bytes(),
+            chain_id.to_le_bytes(),
+        ),
         vec![
+            AccountMeta::new(mint_pubkey, false),
             AccountMeta::new(source_pubkey, false),
-            AccountMeta::new(destination_pubkey, false),
-            AccountMeta::new(ether_account_pubkey, false),
+            AccountMeta::new(pool_pubkey, false),
+            AccountMeta::new(ether_balance_pubkey, false),
+            AccountMeta::new(ether_contract_pubkey, false),
             AccountMeta::new_readonly(spl_token_id, false),
             AccountMeta::new(signer_pubkey, true),
             AccountMeta::new_readonly(system_program::id(), false),

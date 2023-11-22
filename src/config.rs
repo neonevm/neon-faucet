@@ -90,12 +90,9 @@ const FAUCET_SOLANA_ENABLE: &str = "FAUCET_SOLANA_ENABLE";
 const SOLANA_URL: &str = "SOLANA_URL";
 const SOLANA_COMMITMENT: &str = "SOLANA_COMMITMENT";
 const EVM_LOADER: &str = "EVM_LOADER";
-const NEON_SEED_VERSION: &str = "NEON_SEED_VERSION";
+const NEON_SEED_VERSION: &str = "NEON_ACCOUNT_SEED_VERSION";
+const NEON_CHAIN_ID: &str = "NEON_CHAIN_ID";
 const NEON_TOKEN_MINT: &str = "NEON_TOKEN_MINT";
-const NEON_TOKEN_MINT_DECIMALS: &str = "NEON_TOKEN_MINT_DECIMALS";
-const NEON_COMPUTE_UNITS: &str = "NEON_COMPUTE_UNITS";
-const NEON_HEAP_FRAME: &str = "NEON_HEAP_FRAME";
-const NEON_ADDITIONAL_FEE: &str = "NEON_ADDITIONAL_FEE";
 const NEON_OPERATOR_KEYFILE: &str = "NEON_OPERATOR_KEYFILE";
 const NEON_ETH_MAX_AMOUNT: &str = "NEON_ETH_MAX_AMOUNT";
 const NEON_LOG: &str = "NEON_LOG";
@@ -275,6 +272,11 @@ pub fn solana_account_seed_version() -> u8 {
     CONFIG.read().unwrap().solana.account_seed_version
 }
 
+/// Gets the `solana.chain_id` value.
+pub fn solana_chain_id() -> u64 {
+    CONFIG.read().unwrap().solana.chain_id
+}
+
 /// Gets the `solana.token_mint` address value.
 pub fn solana_token_mint_id() -> String {
     CONFIG.read().unwrap().solana.token_mint.clone()
@@ -282,7 +284,7 @@ pub fn solana_token_mint_id() -> String {
 
 /// Gets the `solana.token_mint_decimals` value.
 pub fn solana_token_mint_decimals() -> u8 {
-    CONFIG.read().unwrap().solana.token_mint_decimals
+    9
 }
 
 /// Gets the `solana.operator` keypair value.
@@ -448,12 +450,9 @@ struct Solana {
     url: String,
     commitment: String,
     evm_loader: String,
-    account_seed_version: u8,           // from neon params
-    token_mint: String,                 // from neon params
-    token_mint_decimals: u8,            // from neon params
-    compute_budget_units: u32,          // from neon params
-    compute_budget_heap_frame: u32,     // from neon params
-    compute_budget_additional_fee: u32, // from neon params
+    account_seed_version: u8, // from neon params
+    chain_id: u64,            // from neon params
+    token_mint: String,       // from neon params
     operator_keyfile: PathBuf,
     max_amount: u64,
 }
@@ -806,19 +805,8 @@ pub async fn load_neon_params() -> Result<()> {
             NEON_SEED_VERSION => {
                 CONFIG.write().unwrap().solana.account_seed_version = val.parse::<u8>()?
             }
+            NEON_CHAIN_ID => CONFIG.write().unwrap().solana.chain_id = val.parse::<u64>()?,
             NEON_TOKEN_MINT => CONFIG.write().unwrap().solana.token_mint = val.into(),
-            NEON_TOKEN_MINT_DECIMALS => {
-                CONFIG.write().unwrap().solana.token_mint_decimals = val.parse::<u8>()?
-            }
-            NEON_COMPUTE_UNITS => {
-                CONFIG.write().unwrap().solana.compute_budget_units = val.parse::<u32>()?
-            }
-            NEON_HEAP_FRAME => {
-                CONFIG.write().unwrap().solana.compute_budget_heap_frame = val.parse::<u32>()?
-            }
-            NEON_ADDITIONAL_FEE => {
-                CONFIG.write().unwrap().solana.compute_budget_additional_fee = val.parse::<u32>()?
-            }
             _ => {}
         }
     }
@@ -847,7 +835,7 @@ fn read_neon_parameters_from_account(client: RpcClient) -> Result<HashMap<String
                 .map_err(|_| Error::AssociatedPdaNotFound(programdata_address, evm_loader_id))?;
 
             if let Ok(UpgradeableLoaderState::ProgramData { .. }) = programdata_account.state() {
-                let offset = UpgradeableLoaderState::programdata_data_offset().unwrap_or(0);
+                let offset = UpgradeableLoaderState::size_of_programdata_metadata();
                 let program_data = &programdata_account.data[offset..];
                 Ok(read_elf_parameters(program_data))
             } else {
@@ -857,7 +845,7 @@ fn read_neon_parameters_from_account(client: RpcClient) -> Result<HashMap<String
                 ))
             }
         } else if let Ok(UpgradeableLoaderState::Buffer { .. }) = account.state() {
-            let offset = UpgradeableLoaderState::buffer_data_offset().unwrap_or(0);
+            let offset = UpgradeableLoaderState::size_of_buffer_metadata();
             let program_data = &account.data[offset..];
             Ok(read_elf_parameters(program_data))
         } else {
